@@ -1,32 +1,56 @@
 import { describe, expect, it } from "vitest";
 
 import { pageWindow } from "@/components/listing/pagination";
-import { registerSchema, signInSchema } from "@/lib/auth/schemas";
-import { products } from "@/lib/catalog/data";
-import { fromProduct, productFormSchema, slugify, toProduct } from "@/lib/catalog/product-form";
+import { loginSchema, registerFormSchema } from "@/lib/auth/forms";
+import { fromProduct, productFormSchema, slugify, toProductInput } from "@/lib/catalog/product-form";
+import { productInputSchema, type Product } from "@/lib/catalog/schema";
+
+const product: Product = {
+  id: "0123456789abcdef01234567",
+  slug: "test-kettle",
+  name: "Test Kettle",
+  brand: "Testware",
+  category: "home",
+  summary: "1.7 L",
+  description: "A kettle.",
+  image: { url: "/images/products/kettle.jpg", alt: "A kettle", sourceUrl: "https://unsplash.com/photos/x" },
+  listPrice: 6999,
+  offers: [
+    { storeId: "kettle", storeName: "Kettle & Crate", price: 5999, shipping: 0, inStock: true },
+    { storeId: "harbor", storeName: "Harbor Supply", price: 4999, shipping: 550, inStock: false },
+  ],
+  specs: [{ label: "Capacity", value: "1.7 L" }],
+  currentPrice: 5999,
+  createdAt: "2026-10-01T09:00:00.000Z",
+  updatedAt: "2026-10-01T09:00:00.000Z",
+};
 
 describe("product form", () => {
-  it("round-trips a product through form values without losing data", () => {
-    for (const product of products) {
-      const values = fromProduct(product);
-      expect(productFormSchema.safeParse(values).success).toBe(true);
-      expect(toProduct(values, product)).toEqual(product);
-    }
+  it("round-trips a product into a valid API body without losing data", () => {
+    const values = fromProduct(product);
+    expect(productFormSchema.safeParse(values).success).toBe(true);
+    const body = toProductInput(values, product.image.sourceUrl);
+    expect(productInputSchema.parse(body)).toMatchObject({
+      slug: product.slug,
+      listPrice: 6999,
+      image: product.image,
+      offers: [
+        { storeId: "kettle", price: 5999, shipping: 0, inStock: true },
+        { storeId: "harbor", price: 4999, shipping: 550, inStock: false },
+      ],
+    });
   });
 
   it("rejects duplicate stores, bad money and unsafe image URLs", () => {
-    const [first] = products;
-    if (!first) throw new Error("fixture missing");
-    const values = fromProduct(first);
-    const bad = {
+    const values = fromProduct(product);
+    const result = productFormSchema.safeParse({
       ...values,
       imageSrc: "javascript:alert(1)",
       offers: [
         { storeId: "northline", price: "12.345", shipping: "0", inStock: true },
         { storeId: "northline", price: "10", shipping: "0", inStock: true },
       ],
-    };
-    const result = productFormSchema.safeParse(bad);
+    });
     expect(result.success).toBe(false);
     const paths = result.error?.issues.map((i) => i.path.join(".")) ?? [];
     expect(paths).toEqual(expect.arrayContaining(["imageSrc", "offers.0.price", "offers"]));
@@ -37,17 +61,16 @@ describe("product form", () => {
   });
 });
 
-describe("auth schemas", () => {
-  it("validates sign-in input", () => {
-    expect(signInSchema.safeParse({ email: "a@b.co", password: "x" }).success).toBe(true);
-    expect(signInSchema.safeParse({ email: "nope", password: "" }).success).toBe(false);
+describe("auth forms", () => {
+  it("normalises the email on sign-in", () => {
+    expect(loginSchema.parse({ email: "  Ana@Example.TEST ", password: "x" }).email).toBe("ana@example.test");
   });
 
   it("enforces password rules and matching confirmation", () => {
-    const ok = { name: "Ana", email: "ana@example.com", password: "longenough1", confirmPassword: "longenough1" };
-    expect(registerSchema.safeParse(ok).success).toBe(true);
-    expect(registerSchema.safeParse({ ...ok, password: "short1", confirmPassword: "short1" }).success).toBe(false);
-    const mismatch = registerSchema.safeParse({ ...ok, confirmPassword: "different1" });
+    const ok = { name: "Ana", email: "ana@example.test", password: "longenough1", confirmPassword: "longenough1" };
+    expect(registerFormSchema.safeParse(ok).success).toBe(true);
+    expect(registerFormSchema.safeParse({ ...ok, password: "short1", confirmPassword: "short1" }).success).toBe(false);
+    const mismatch = registerFormSchema.safeParse({ ...ok, confirmPassword: "different1" });
     expect(mismatch.error?.issues[0]?.path).toEqual(["confirmPassword"]);
   });
 });

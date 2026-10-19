@@ -6,7 +6,7 @@ import { PriceDelta } from "@/components/product/price";
 import { PriceHistoryChart } from "@/components/product/price-history-chart";
 import { ProductImage } from "@/components/product/product-image";
 import { Button } from "@/components/ui/button";
-import { getPriceSeries } from "@/lib/catalog/insight";
+import { priceSeries } from "@/lib/catalog/schema";
 import type { ProductWithInsight } from "@/lib/catalog/types";
 import { formatPrice } from "@/lib/format";
 
@@ -20,10 +20,10 @@ function stickerVsTotal({ insight }: ProductWithInsight) {
   if (cheapestSticker.storeId === insight.best.storeId) return null;
   return (
     <>
-      {cheapestSticker.store.name} has the lowest sticker price at{" "}
+      {cheapestSticker.storeName} has the lowest sticker price at{" "}
       <strong className="font-semibold text-ink">{formatPrice(cheapestSticker.price, { precise: true })}</strong>, but{" "}
       {formatPrice(cheapestSticker.shipping, { precise: true })} shipping makes it{" "}
-      {formatPrice(cheapestSticker.total, { precise: true })}. {insight.best.store.name} is the better buy
+      {formatPrice(cheapestSticker.total, { precise: true })}. {insight.best.storeName} is the better buy
       at <strong className="font-semibold text-signal-ink">{formatPrice(insight.best.total, { precise: true })}</strong>{" "}
       delivered.
     </>
@@ -33,7 +33,7 @@ function stickerVsTotal({ insight }: ProductWithInsight) {
 export function ComparisonPreview({ item }: { item: ProductWithInsight }) {
   const { product, insight } = item;
   const insightCopy = stickerVsTotal(item);
-  const series = getPriceSeries(product);
+  const series = priceSeries(product);
 
   return (
     <section aria-labelledby="compare-title" className="page-container py-12">

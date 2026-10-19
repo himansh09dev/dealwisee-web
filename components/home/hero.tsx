@@ -7,12 +7,12 @@ import { PriceHistoryChart } from "@/components/product/price-history-chart";
 import { ProductImage } from "@/components/product/product-image";
 import { Button } from "@/components/ui/button";
 import { SearchField } from "@/components/ui/input";
-import { getPriceSeries } from "@/lib/catalog/insight";
+import { priceSeries } from "@/lib/catalog/schema";
 import type { ProductWithInsight } from "@/lib/catalog/types";
 
 export function Hero({ spotlight }: { spotlight: ProductWithInsight }) {
   const { product, insight } = spotlight;
-  const series = getPriceSeries(product);
+  const series = priceSeries(product);
 
   return (
     <section aria-labelledby="hero-title" className="page-container pt-10 pb-16 md:pt-16 lg:pb-24">
@@ -83,7 +83,7 @@ export function Hero({ spotlight }: { spotlight: ProductWithInsight }) {
             </div>
             <div className="mt-4 flex items-center justify-between text-xs text-ink-muted">
               <span>
-                at {insight.best.store.name} · {insight.inStockCount} of {insight.storeCount} stores in stock
+                at {insight.best.storeName} · {insight.inStockCount} of {insight.storeCount} stores in stock
               </span>
               <Link
                 href={`/products/${product.slug}`}

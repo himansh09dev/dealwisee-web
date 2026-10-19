@@ -20,7 +20,7 @@ export function CategoryRail({ categories }: { categories: CategorySummary[] }) 
             >
               <div className="relative aspect-square overflow-hidden rounded-lg bg-sunken">
                 <Image
-                  src={c.cover.src}
+                  src={c.cover.url}
                   alt=""
                   fill
                   sizes="(min-width: 1024px) 11vw, 8rem"

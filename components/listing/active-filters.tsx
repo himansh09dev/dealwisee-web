@@ -4,13 +4,14 @@ import { X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { hasActiveFilters, type ProductQuery } from "@/lib/catalog/query";
-import type { Category } from "@/lib/catalog/schema";
 
 import { useListing } from "./listing-context";
 
 type Chip = { key: string; label: string; remove: Partial<ProductQuery> };
 
-function buildChips(query: ProductQuery, categories: Category[]): Chip[] {
+type CategoryName = { id: string; name: string };
+
+function buildChips(query: ProductQuery, categories: CategoryName[]): Chip[] {
   const name = (id: string) => categories.find((c) => c.id === id)?.name ?? id;
   const chips: Chip[] = [];
   if (query.q) chips.push({ key: "q", label: `“${query.q}”`, remove: { q: "" } });
@@ -44,7 +45,7 @@ export const clearedFilters: Partial<ProductQuery> = {
   maxPrice: null,
 };
 
-export function ActiveFilters({ categories }: { categories: Category[] }) {
+export function ActiveFilters({ categories }: { categories: CategoryName[] }) {
   const { query, update } = useListing();
   if (!hasActiveFilters(query)) return null;
   const chips = buildChips(query, categories);

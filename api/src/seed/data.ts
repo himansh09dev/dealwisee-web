@@ -1,39 +1,37 @@
-import { categoryList } from "./schema";
-import type { Category, Product, Store } from "./types";
+import type { ProductInput } from "@pricepilot/contracts";
 
 /*
- * MOCK / SEED DATA — used until the Express API exists.
- * Products and photography are real; stores are fictional and every price,
- * offer and history point is illustrative. This module is replaced by the
- * REST API in a later phase — keep it free of UI concerns.
+ * DEVELOPMENT SEED DATA.
+ * Products and photography are real (Unsplash License); the stores are
+ * fictional and every price, offer and history point is illustrative.
+ * No real people, credentials or personal data.
  */
 
-export const categories: Category[] = categoryList;
-
-export const stores: Store[] = [
-  { id: "northline", name: "Northline" },
-  { id: "parcel", name: "Parcel & Co." },
-  { id: "voltmart", name: "Voltmart" },
-  { id: "harbor", name: "Harbor Supply" },
-  { id: "kettle", name: "Kettle & Crate" },
-];
+export type SeedProduct = ProductInput & {
+  /** Backdated so "Recently added" has a meaningful order. */
+  createdAt: string;
+  /** Weekly lowest totals before this week, oldest first. */
+  history?: number[];
+};
 
 const unsplash = (id: string) => `https://unsplash.com/photos/${id}`;
 
-export const products: Product[] = [
+export const seedProducts: SeedProduct[] = [
   {
     slug: "sony-wh-1000xm4",
     name: "WH-1000XM4 Wireless Noise Cancelling Headphones",
     brand: "Sony",
     category: "audio",
     summary: "Adaptive ANC · 30 h battery · Multipoint",
+    description:
+      "Over-ear wireless headphones with adaptive noise cancelling that adjusts to your surroundings, up to 30 hours of battery life with ANC on, and multipoint pairing for switching between a phone and a laptop.",
     image: {
-      src: "/images/products/sony-wh-1000xm4.jpg",
+      url: "/images/products/sony-wh-1000xm4.jpg",
       alt: "Black Sony over-ear headphones standing upright on a warm beige background",
       sourceUrl: unsplash("photo-1618366712010-f4ae9c647dcb"),
     },
     listPrice: 34999,
-    addedAt: "2026-10-16",
+    createdAt: "2026-10-16T09:00:00.000Z",
     specs: [
       { label: "Type", value: "Over-ear, wireless" },
       { label: "Noise cancelling", value: "Adaptive ANC" },
@@ -57,13 +55,15 @@ export const products: Product[] = [
     brand: "JBL",
     category: "audio",
     summary: "IPX7 · 12 h playtime · PartyBoost",
+    description:
+      "A cylindrical Bluetooth speaker rated IPX7 against water, with around 12 hours of playtime and PartyBoost for pairing with other compatible JBL speakers.",
     image: {
-      src: "/images/products/jbl-flip-5.jpg",
+      url: "/images/products/jbl-flip-5.jpg",
       alt: "Black JBL cylindrical speaker lying on a wooden surface",
       sourceUrl: unsplash("photo-1608043152269-423dbba4e7e1"),
     },
     listPrice: 12999,
-    addedAt: "2026-09-22",
+    createdAt: "2026-09-22T09:00:00.000Z",
     specs: [
       { label: "Type", value: "Portable speaker" },
       { label: "Battery", value: "Up to 12 h" },
@@ -85,13 +85,15 @@ export const products: Product[] = [
     brand: "Samsung",
     category: "phones",
     summary: '6.2" 120 Hz · Triple camera · Unlocked',
+    description:
+      "An unlocked 5G phone with a 6.2-inch 120 Hz AMOLED display, a triple rear camera and an IP68 rating for dust and water resistance.",
     image: {
-      src: "/images/products/samsung-galaxy-s21.jpg",
+      url: "/images/products/samsung-galaxy-s21.jpg",
       alt: "Violet Samsung Galaxy S21 shown from the back next to its retail box",
       sourceUrl: unsplash("photo-1610945265064-0e34e5519bbf"),
     },
     listPrice: 79999,
-    addedAt: "2026-10-02",
+    createdAt: "2026-10-02T09:00:00.000Z",
     specs: [
       { label: "Display", value: '6.2" AMOLED, 120 Hz' },
       { label: "Storage", value: "128 GB" },
@@ -115,13 +117,15 @@ export const products: Product[] = [
     brand: "Apple",
     category: "phones",
     summary: '6.1" OLED · A14 Bionic · 5G',
+    description:
+      "A 6.1-inch OLED iPhone with the A14 Bionic chip, 5G connectivity and IP68 water resistance, in the 64 GB configuration.",
     image: {
-      src: "/images/products/apple-iphone-12.jpg",
+      url: "/images/products/apple-iphone-12.jpg",
       alt: "iPhone 12 lying on a wooden table beside a pair of white earbuds",
       sourceUrl: unsplash("photo-1592899677977-9c10ca588bbd"),
     },
     listPrice: 59900,
-    addedAt: "2026-09-08",
+    createdAt: "2026-09-08T09:00:00.000Z",
     specs: [
       { label: "Display", value: '6.1" OLED, 60 Hz' },
       { label: "Storage", value: "64 GB" },
@@ -145,13 +149,15 @@ export const products: Product[] = [
     brand: "Sony",
     category: "gaming",
     summary: "825 GB SSD · 4K 120 Hz · DualSense",
+    description:
+      "Sony’s console with an 825 GB SSD for fast loading, output up to 4K at 120 Hz, an Ultra HD Blu-ray drive and the DualSense controller.",
     image: {
-      src: "/images/products/playstation-5.jpg",
+      url: "/images/products/playstation-5.jpg",
       alt: "Close-up of the white PlayStation 5 console panel with the PlayStation logo",
       sourceUrl: unsplash("photo-1606813907291-d86efa9b94db"),
     },
     listPrice: 49999,
-    addedAt: "2026-10-12",
+    createdAt: "2026-10-12T09:00:00.000Z",
     specs: [
       { label: "Storage", value: "825 GB SSD" },
       { label: "Output", value: "Up to 4K 120 Hz" },
@@ -173,13 +179,15 @@ export const products: Product[] = [
     brand: "Polaroid",
     category: "cameras",
     summary: "Viewfinder · Self-timer · 60-day battery",
+    description:
+      "An analog instant camera that shoots on i-Type and 600 film, with an optical viewfinder, self-timer and a rechargeable battery.",
     image: {
-      src: "/images/products/polaroid-onestep-2.jpg",
+      url: "/images/products/polaroid-onestep-2.jpg",
       alt: "White Polaroid OneStep 2 instant camera on a light grey surface",
       sourceUrl: unsplash("photo-1526170375885-4d8ecf77b99f"),
     },
     listPrice: 9999,
-    addedAt: "2026-10-18",
+    createdAt: "2026-10-18T09:00:00.000Z",
     specs: [
       { label: "Film", value: "i-Type, 600" },
       { label: "Lens", value: "106 mm fixed focus" },
@@ -201,13 +209,15 @@ export const products: Product[] = [
     brand: "Apple",
     category: "wearables",
     summary: "Always-on Retina · Blood oxygen · Water resistant",
+    description:
+      "A 44 mm aluminium smartwatch with an always-on display, blood oxygen and ECG sensing, GPS, and water resistance to 50 metres.",
     image: {
-      src: "/images/products/apple-watch-series-6.jpg",
+      url: "/images/products/apple-watch-series-6.jpg",
       alt: "Apple Watch with a black sport band photographed from above on white",
       sourceUrl: unsplash("photo-1546868871-7041f2a55e12"),
     },
     listPrice: 39900,
-    addedAt: "2026-09-30",
+    createdAt: "2026-09-30T09:00:00.000Z",
     specs: [
       { label: "Display", value: "Always-on Retina" },
       { label: "Case size", value: "44 mm aluminium" },
@@ -230,13 +240,15 @@ export const products: Product[] = [
     brand: "Apple",
     category: "computing",
     summary: "Apple M2 · 20 h battery · Touch Bar",
+    description:
+      "A 13-inch laptop with the Apple M2 chip, 8 GB of memory and a 256 GB SSD, rated for up to 20 hours of video playback.",
     image: {
-      src: "/images/products/macbook-pro-13.jpg",
+      url: "/images/products/macbook-pro-13.jpg",
       alt: "Open MacBook Pro keyboard lit by purple and blue light",
       sourceUrl: unsplash("photo-1517336714731-489689fd1ca8"),
     },
     listPrice: 129900,
-    addedAt: "2026-10-09",
+    createdAt: "2026-10-09T09:00:00.000Z",
     specs: [
       { label: "Display", value: '13.3" Retina, 2560 × 1600' },
       { label: "Processor", value: "Apple M2" },
@@ -263,13 +275,15 @@ export const products: Product[] = [
     brand: "Nike",
     category: "footwear",
     summary: "Visible Air cushioning · Mesh upper",
+    description:
+      "A lifestyle sneaker with a visible Max Air unit in the heel and a mesh and synthetic upper.",
     image: {
-      src: "/images/products/nike-air-max-1.jpg",
+      url: "/images/products/nike-air-max-1.jpg",
       alt: "White and bright orange Nike Air Max 1 sneaker suspended against a pale grey backdrop",
       sourceUrl: unsplash("photo-1600185365483-26d7a4cc7519"),
     },
     listPrice: 14000,
-    addedAt: "2026-10-05",
+    createdAt: "2026-10-05T09:00:00.000Z",
     specs: [
       { label: "Upper", value: "Mesh and synthetic" },
       { label: "Cushioning", value: "Visible Max Air unit" },
@@ -289,13 +303,15 @@ export const products: Product[] = [
     brand: "Nike",
     category: "footwear",
     summary: "Flyknit upper · Flexible sole · Neutral",
+    description:
+      "A lightweight road-running shoe with a Flyknit upper and a flexible foam sole designed to move with the foot.",
     image: {
-      src: "/images/products/nike-free-rn-flyknit.jpg",
+      url: "/images/products/nike-free-rn-flyknit.jpg",
       alt: "Red Nike Free RN Flyknit running shoe on a red background",
       sourceUrl: unsplash("photo-1542291026-7eec264c27ff"),
     },
     listPrice: 12000,
-    addedAt: "2026-09-14",
+    createdAt: "2026-09-14T09:00:00.000Z",
     specs: [
       { label: "Upper", value: "Flyknit" },
       { label: "Cushioning", value: "Foam midsole" },
@@ -315,13 +331,15 @@ export const products: Product[] = [
     brand: "Baratza",
     category: "home",
     summary: "40 grind settings · 40 mm burrs",
+    description:
+      "An entry-level conical burr grinder with 40 grind settings, suitable for drip, pour-over and French press brewing.",
     image: {
-      src: "/images/products/baratza-encore.jpg",
+      url: "/images/products/baratza-encore.jpg",
       alt: "Baratza Encore grinder on a granite kitchen counter beside a filter coffee brewer",
       sourceUrl: unsplash("photo-1570222094114-d054a817e56b"),
     },
     listPrice: 14995,
-    addedAt: "2026-10-14",
+    createdAt: "2026-10-14T09:00:00.000Z",
     specs: [
       { label: "Burrs", value: "40 mm conical steel" },
       { label: "Grind settings", value: "40" },
@@ -341,13 +359,15 @@ export const products: Product[] = [
     brand: "IKEA",
     category: "home",
     summary: "Adjustable shade · Steel · E26 bulb",
+    description:
+      "A steel floor lamp with an adjustable, tilting shade for directing light. The bulb is sold separately.",
     image: {
-      src: "/images/products/ikea-hektar-floor-lamp.jpg",
+      url: "/images/products/ikea-hektar-floor-lamp.jpg",
       alt: "Dark grey IKEA HEKTAR floor lamp against a white wall",
       sourceUrl: unsplash("photo-1507473885765-e6ed057f782c"),
     },
     listPrice: 9999,
-    addedAt: "2026-09-26",
+    createdAt: "2026-09-26T09:00:00.000Z",
     specs: [
       { label: "Height", value: "181 cm" },
       { label: "Material", value: "Steel" },
@@ -367,13 +387,15 @@ export const products: Product[] = [
     brand: "Ray-Ban",
     category: "accessories",
     summary: "Acetate frame · G-15 lenses · 50 mm",
+    description:
+      "The classic acetate Wayfarer frame with G-15 green lenses that block 100% of UVA and UVB light.",
     image: {
-      src: "/images/products/ray-ban-wayfarer.jpg",
+      url: "/images/products/ray-ban-wayfarer.jpg",
       alt: "Black Ray-Ban Wayfarer sunglasses on a white surface",
       sourceUrl: unsplash("photo-1572635196237-14b3f281503f"),
     },
     listPrice: 16300,
-    addedAt: "2026-10-07",
+    createdAt: "2026-10-07T09:00:00.000Z",
     specs: [
       { label: "Frame", value: "Acetate" },
       { label: "Lens", value: "G-15 green, non-polarised" },

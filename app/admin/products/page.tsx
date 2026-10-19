@@ -12,9 +12,9 @@ import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/state";
-import { catalog } from "@/lib/catalog";
+import { listProducts } from "@/lib/catalog";
 import { parseProductQuery } from "@/lib/catalog/query";
-import { categoryLabels } from "@/lib/catalog/schema";
+import { categoryLabels, categoryList } from "@/lib/catalog/schema";
 import { formatPrice, formatShortDate } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Products" };
@@ -24,8 +24,9 @@ export const metadata: Metadata = { title: "Products" };
  * shareable. Admin tables favour explicit "Apply" over live updates.
  */
 async function ProductTable({ searchParams }: Pick<PageProps<"/admin/products">, "searchParams">) {
-  const query = { ...parseProductQuery(await searchParams), pageSize: 100, sort: "name-asc" as const };
-  const [result, categories] = await Promise.all([catalog.listProducts(query), catalog.listCategories()]);
+  const query = { ...parseProductQuery(await searchParams), pageSize: 48, sort: "name-asc" as const };
+  const result = await listProducts(query);
+  const categories = categoryList;
   const activeCategory = query.categories[0] ?? "";
 
   return (
@@ -92,11 +93,11 @@ async function ProductTable({ searchParams }: Pick<PageProps<"/admin/products">,
             </thead>
             <tbody>
               {result.items.map(({ product, insight }) => (
-                <tr key={product.slug} className="border-b border-line last:border-0 hover:bg-paper/60">
+                <tr key={product.id} className="border-b border-line last:border-0 hover:bg-paper/60">
                   <th scope="row" className="px-4 py-3 text-left font-normal">
                     <div className="flex items-center gap-3">
                       <span className="relative size-10 shrink-0 overflow-hidden rounded-md bg-sunken">
-                        <Image src={product.image.src} alt="" fill sizes="2.5rem" className="object-cover" />
+                        <Image src={product.image.url} alt="" fill sizes="2.5rem" className="object-cover" />
                       </span>
                       <span className="min-w-0">
                         <span className="block max-w-[22rem] truncate font-medium text-ink">{product.name}</span>
@@ -112,7 +113,7 @@ async function ProductTable({ searchParams }: Pick<PageProps<"/admin/products">,
                     {insight.inStockCount}/{insight.storeCount}
                     <span className="sr-only"> in stock</span>
                   </td>
-                  <td className="px-4 py-3 text-ink-muted tabular-nums">{formatShortDate(product.addedAt)}</td>
+                  <td className="px-4 py-3 text-ink-muted tabular-nums">{formatShortDate(product.createdAt)}</td>
                   <td className="px-4 py-3">
                     <div className="flex justify-end gap-1">
                       <Button asChild variant="ghost" size="sm">
@@ -121,7 +122,7 @@ async function ProductTable({ searchParams }: Pick<PageProps<"/admin/products">,
                           Edit<span className="sr-only"> {product.name}</span>
                         </Link>
                       </Button>
-                      <DeleteProductButton slug={product.slug} name={product.name} />
+                      <DeleteProductButton id={product.id} name={product.name} />
                     </div>
                   </td>
                 </tr>

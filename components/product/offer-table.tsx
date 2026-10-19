@@ -49,7 +49,7 @@ export function OfferTable({ item, className }: { item: ProductWithInsight; clas
               >
                 <th scope="row" className="py-3 pr-4 text-left font-medium">
                   <span className="flex items-center gap-2">
-                    {offer.store.name}
+                    {offer.storeName}
                     {isBest && (
                       <Badge tone="signal">
                         <Check aria-hidden strokeWidth={3} />

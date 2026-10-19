@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { FormAlert } from "@/components/ui/form-alert";
+import { Skeleton } from "@/components/ui/skeleton";
 
 /** Shared frame for sign-in and registration. */
 export function AuthShell({
@@ -22,10 +22,6 @@ export function AuthShell({
         <p className="eyebrow text-ink-subtle">{eyebrow}</p>
         <h1 className="mt-3 font-display text-4xl tracking-tight text-ink md:text-5xl">{title}</h1>
         <p className="mt-3 text-ink-muted">{lede}</p>
-        <FormAlert tone="info" className="mt-6">
-          Accounts launch with the API. Until then the form validates your input, and submitting
-          shows a &ldquo;not available yet&rdquo; message; nothing is stored.
-        </FormAlert>
         <div className="mt-8">{children}</div>
         <div className="mt-8 border-t border-line pt-6 text-sm text-ink-muted">{footer}</div>
       </div>
@@ -35,8 +31,8 @@ export function AuthShell({
         <ul className="mt-6 space-y-6">
           {[
             ["Your wishlist, everywhere", "Saved products sync across devices instead of living in one browser."],
-            ["Comparisons that keep", "Pick up a side-by-side comparison where you left it."],
-            ["Price alerts", "Set a target price and hear about it when an offer drops below it (planned)."],
+            ["Admin tools", "Team members with the admin role can manage the catalog."],
+            ["Price alerts (coming later)", "Set a target price and hear about it when an offer drops below it."],
           ].map(([title, body]) => (
             <li key={title} className="border-t border-ink-inverse/20 pt-5">
               <p className="font-display text-xl">{title}</p>
@@ -45,6 +41,16 @@ export function AuthShell({
           ))}
         </ul>
       </aside>
+    </div>
+  );
+}
+
+export function FormSkeleton() {
+  return (
+    <div aria-busy="true" aria-label="Loading form" className="grid gap-5">
+      <Skeleton className="h-16 w-full" />
+      <Skeleton className="h-16 w-full" />
+      <Skeleton className="h-12 w-full" />
     </div>
   );
 }

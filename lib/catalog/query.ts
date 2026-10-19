@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { categoryIdSchema, type CategoryId } from "./schema";
+import { categoryIdSchema, sortValues, type CategoryId, type ProductSort } from "@pricepilot/contracts";
 
 /*
  * URL <-> query contract for /products. The URL is the source of truth for
@@ -8,8 +8,7 @@ import { categoryIdSchema, type CategoryId } from "./schema";
  * mangled link still renders), serialising omits defaults so URLs stay short.
  */
 
-export const sortValues = ["newest", "price-asc", "price-desc", "name-asc", "drops"] as const;
-export type ProductSort = (typeof sortValues)[number];
+export { sortValues, type ProductSort };
 
 const sortLabels: Record<ProductSort, string> = {
   newest: "Recently added",
@@ -22,7 +21,7 @@ const sortLabels: Record<ProductSort, string> = {
 export const sortOptions = sortValues.map((value) => ({ value, label: sortLabels[value] }));
 
 export const DEFAULT_SORT: ProductSort = "newest";
-export const PAGE_SIZE = 8;
+export const PAGE_SIZE = 12;
 
 export type ProductQuery = {
   q: string;
@@ -107,4 +106,18 @@ export function hasActiveFilters(query: ProductQuery) {
     query.minPrice !== null ||
     query.maxPrice !== null
   );
+}
+
+/** The API's query string for this listing. Prices: the URL uses dollars, the API uses cents. */
+export function toApiQuery(query: ProductQuery): string {
+  const params = new URLSearchParams();
+  if (query.q) params.set("q", query.q);
+  if (query.categories.length > 0) params.set("category", query.categories.join(","));
+  if (query.brands.length > 0) params.set("brand", query.brands.join(","));
+  if (query.minPrice !== null) params.set("minPrice", String(query.minPrice * 100));
+  if (query.maxPrice !== null) params.set("maxPrice", String(query.maxPrice * 100));
+  params.set("sort", query.sort);
+  params.set("page", String(query.page));
+  params.set("pageSize", String(query.pageSize));
+  return params.toString();
 }

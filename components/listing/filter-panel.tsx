@@ -6,18 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import type { FacetCount } from "@/lib/catalog/filter";
-import type { CategoryId } from "@/lib/catalog/schema";
+import { categoryIdSchema, type Facet } from "@/lib/catalog/schema";
 
 import { useListing } from "./listing-context";
 
-export type Facets = { categories: FacetCount<CategoryId>[]; brands: FacetCount[] };
+export type Facets = { categories: Facet[]; brands: Facet[] };
 
 function toggle<T>(list: readonly T[], value: T, on: boolean): T[] {
   return on ? [...list, value] : list.filter((v) => v !== value);
 }
 
-function FacetGroup<T extends string>({
+function FacetGroup({
   legend,
   facets,
   selected,
@@ -25,10 +24,10 @@ function FacetGroup<T extends string>({
   onChange,
 }: {
   legend: string;
-  facets: FacetCount<T>[];
-  selected: readonly T[];
+  facets: Facet[];
+  selected: readonly string[];
   idPrefix: string;
-  onChange: (value: T, checked: boolean) => void;
+  onChange: (value: string, checked: boolean) => void;
 }) {
   return (
     <fieldset>
@@ -140,7 +139,10 @@ export function FilterPanel({ facets, idPrefix }: { facets: Facets; idPrefix: st
         facets={facets.categories}
         selected={query.categories}
         idPrefix={`${idPrefix}-cat`}
-        onChange={(value, on) => update({ categories: toggle(query.categories, value, on) })}
+        onChange={(value, on) => {
+          const id = categoryIdSchema.safeParse(value);
+          if (id.success) update({ categories: toggle(query.categories, id.data, on) });
+        }}
       />
       <FacetGroup
         legend="Brand"

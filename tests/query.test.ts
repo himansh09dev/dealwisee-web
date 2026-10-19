@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { defaultQuery, hasActiveFilters, parseProductQuery, productsHref } from "@/lib/catalog/query";
+import { defaultQuery, hasActiveFilters, parseProductQuery, productsHref, toApiQuery } from "@/lib/catalog/query";
 
 describe("parseProductQuery", () => {
   it("returns defaults for empty params", () => {
@@ -51,5 +51,22 @@ describe("hasActiveFilters", () => {
   it("ignores sort and page", () => {
     expect(hasActiveFilters({ ...defaultQuery, sort: "name-asc", page: 4 })).toBe(false);
     expect(hasActiveFilters({ ...defaultQuery, brands: ["Nike"] })).toBe(true);
+  });
+});
+
+describe("toApiQuery", () => {
+  it("converts dollars to cents and joins lists for the API", () => {
+    const qs = new URLSearchParams(
+      toApiQuery({ ...defaultQuery, q: "lamp", categories: ["home", "audio"], minPrice: 10, maxPrice: 150, page: 2 }),
+    );
+    expect(Object.fromEntries(qs)).toEqual({
+      q: "lamp",
+      category: "home,audio",
+      minPrice: "1000",
+      maxPrice: "15000",
+      sort: "newest",
+      page: "2",
+      pageSize: "12",
+    });
   });
 });

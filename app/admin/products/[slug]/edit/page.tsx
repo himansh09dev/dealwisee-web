@@ -5,22 +5,15 @@ import { Suspense } from "react";
 import { ProductForm } from "@/components/admin/product-form";
 import { PageIntro } from "@/components/layout/page-intro";
 import { Skeleton } from "@/components/ui/skeleton";
-import { catalog } from "@/lib/catalog";
+import { getProduct } from "@/lib/catalog";
+import { categoryList, stores } from "@/lib/catalog/schema";
 import { fromProduct } from "@/lib/catalog/product-form";
 
 export const metadata: Metadata = { title: "Edit product" };
 
-export async function generateStaticParams() {
-  return (await catalog.listSlugs()).map((slug) => ({ slug }));
-}
-
 async function EditForm({ params }: Pick<PageProps<"/admin/products/[slug]/edit">, "params">) {
   const { slug } = await params;
-  const [item, stores, categories] = await Promise.all([
-    catalog.getProduct(slug),
-    catalog.listStores(),
-    catalog.listCategories(),
-  ]);
+  const item = await getProduct(slug);
   if (!item) notFound();
 
   return (
@@ -28,9 +21,9 @@ async function EditForm({ params }: Pick<PageProps<"/admin/products/[slug]/edit"
       <PageIntro eyebrow="Admin · Products" title={`Edit ${item.product.brand} ${item.product.name}`} />
       <div className="page-container">
         <ProductForm
-          originalSlug={item.product.slug}
+          target={{ id: item.product.id, sourceUrl: item.product.image.sourceUrl }}
           defaultValues={fromProduct(item.product)}
-          categories={categories}
+          categories={categoryList}
           stores={stores}
         />
       </div>

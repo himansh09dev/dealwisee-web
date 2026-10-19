@@ -1,11 +1,2 @@
-export type {
-  Category,
-  CategoryId,
-  Offer,
-  PricedOffer,
-  PriceInsight,
-  Product,
-  ProductWithInsight,
-  Spec,
-  Store,
-} from "./schema";
+export type { Category, CategoryId, Facet, PricedOffer, PriceInsight, Product, Store } from "@pricepilot/contracts";
+export type { ProductWithInsight } from "./schema";

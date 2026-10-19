@@ -13,23 +13,33 @@ import { Button, IconButton } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Field, Label } from "@/components/ui/field";
 import { FormAlert } from "@/components/ui/form-alert";
-import { Input } from "@/components/ui/input";
+import { Input, inputClasses } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
 import { toast } from "@/components/ui/toaster";
-import { productFormSchema, slugify, type ProductFormValues } from "@/lib/catalog/product-form";
+import { formFieldForApiPath, productFormSchema, slugify, type ProductFormValues } from "@/lib/catalog/product-form";
 import type { Category, Store } from "@/lib/catalog/types";
+import { cn } from "@/lib/utils";
 
 type ProductFormProps = {
-  /** null when creating */
-  originalSlug: string | null;
+  /** The product being edited; null when creating. */
+  target: { id: string; sourceUrl?: string } | null;
   defaultValues: ProductFormValues;
   categories: Category[];
   stores: Store[];
 };
 
-const topLevelFields = new Set<string>(Object.keys(productFormSchema.shape));
-function isTopLevelField(key: string): key is FieldPath<ProductFormValues> {
-  return topLevelFields.has(key);
+/** True when `path` (e.g. "offers.0.price") names a field that exists in the current form values. */
+function isFormField(path: string, values: ProductFormValues): path is FieldPath<ProductFormValues> {
+  const [top] = path.split(".");
+  if (!top || !(top in productFormSchema.shape)) return false;
+  const node = path
+    .split(".")
+    .reduce<unknown>(
+      (current, key) =>
+        current !== null && typeof current === "object" && key in current ? Reflect.get(current, key) : undefined,
+      values,
+    );
+  return node !== undefined;
 }
 
 function Section({ title, description, children }: { title: string; description?: string; children: ReactNode }) {
@@ -58,10 +68,10 @@ function ImagePreview({ src, alt }: { src: string; alt: string }) {
   );
 }
 
-export function ProductForm({ originalSlug, defaultValues, categories, stores }: ProductFormProps) {
+export function ProductForm({ target, defaultValues, categories, stores }: ProductFormProps) {
   const router = useRouter();
   const id = useId();
-  const isEdit = originalSlug !== null;
+  const isEdit = target !== null;
 
   const {
     register,
@@ -91,16 +101,17 @@ export function ProductForm({ originalSlug, defaultValues, categories, stores }:
   const [imageSrc, imageAlt] = useWatch({ control, name: ["imageSrc", "imageAlt"] });
 
   async function onSubmit(values: ProductFormValues) {
-    const result = await saveProductAction(values, originalSlug);
+    const result = await saveProductAction(values, target);
     if (result.ok) {
       toast(isEdit ? "Product updated" : "Product created");
       router.push("/admin/products");
       return;
     }
-    for (const [field, messages] of Object.entries(result.error.fieldErrors ?? {})) {
-      if (isTopLevelField(field) && messages[0]) setError(field, { message: messages[0] });
+    for (const issue of result.details) {
+      const field = formFieldForApiPath(issue.path);
+      if (isFormField(field, values)) setError(field, { message: issue.message });
     }
-    setError("root.server", { type: result.error.code, message: result.error.message });
+    setError("root.server", { type: result.code, message: result.message });
   }
 
   const serverError = errors.root?.server;
@@ -108,16 +119,11 @@ export function ProductForm({ originalSlug, defaultValues, categories, stores }:
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="grid gap-10">
-      {serverError?.message &&
-        (serverError.type === "READ_ONLY" ? (
-          <FormAlert tone="info" title="Your input is valid, but nothing was saved">
-            {serverError.message}
-          </FormAlert>
-        ) : (
-          <FormAlert tone="error" title="Couldn't save">
-            {serverError.message}
-          </FormAlert>
-        ))}
+      {serverError?.message && (
+        <FormAlert tone="error" title="Couldn't save">
+          {serverError.message}
+        </FormAlert>
+      )}
 
       <Section title="Basics" description="What shoppers see first.">
         <Field label="Product name" error={errors.name?.message}>
@@ -156,6 +162,9 @@ export function ProductForm({ originalSlug, defaultValues, categories, stores }:
         <Field label="Summary" hint="One line, e.g. key specs separated by ·" error={errors.summary?.message}>
           <Input {...bind("summary")} />
         </Field>
+        <Field label="Description" hint="A short, factual paragraph." error={errors.description?.message}>
+          <textarea rows={4} className={cn(inputClasses, "h-auto py-2 leading-relaxed")} {...bind("description")} />
+        </Field>
       </Section>
 
       <Section title="Image" description="One primary photo. Uploads arrive with storage in a later phase.">
@@ -169,12 +178,9 @@ export function ProductForm({ originalSlug, defaultValues, categories, stores }:
       </Section>
 
       <Section title="Pricing" description="Shown only when provided. History can't be entered by hand.">
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-5 sm:max-w-xs">
           <Field label="List price (USD, optional)" error={errors.listPrice?.message}>
             <Input {...bind("listPrice")} inputMode="decimal" placeholder="e.g. 349.99" />
-          </Field>
-          <Field label="Date added" error={errors.addedAt?.message}>
-            <Input type="date" {...bind("addedAt")} />
           </Field>
         </div>
       </Section>

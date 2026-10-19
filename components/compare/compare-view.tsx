@@ -255,7 +255,7 @@ export function CompareView() {
         <Row label="Best store">
           {items.map((item) => (
             <Cell key={item.product.slug}>
-              {item.insight.best.store.name}
+              {item.insight.best.storeName}
               <span className="block text-xs text-ink-muted">
                 {item.insight.inStockCount} of {item.insight.storeCount} stores in stock
               </span>

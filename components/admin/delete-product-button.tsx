@@ -16,7 +16,7 @@ import { Button, IconButton } from "@/components/ui/button";
 import { FormAlert } from "@/components/ui/form-alert";
 import { toast } from "@/components/ui/toaster";
 
-export function DeleteProductButton({ slug, name }: { slug: string; name: string }) {
+export function DeleteProductButton({ id, name }: { id: string; name: string }) {
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -24,13 +24,13 @@ export function DeleteProductButton({ slug, name }: { slug: string; name: string
   function onConfirm() {
     setError(null);
     startTransition(async () => {
-      const result = await deleteProductAction(slug);
+      const result = await deleteProductAction(id);
       if (result.ok) {
         setOpen(false);
         toast(`Deleted ${name}`);
       } else {
         // Keep the dialog open so the outcome is read in context.
-        setError(result.error.message);
+        setError(result.message);
       }
     });
   }

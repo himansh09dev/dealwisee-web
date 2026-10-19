@@ -1,14 +1,18 @@
+import { connection } from "next/server";
+import { Suspense } from "react";
+
 import { CategoryRail } from "@/components/home/category-rail";
 import { Collections, type CollectionCard } from "@/components/home/collections";
 import { ComparisonPreview } from "@/components/home/comparison-preview";
 import { Hero } from "@/components/home/hero";
+import { HomeSkeleton } from "@/components/home/home-skeleton";
 import { Method } from "@/components/home/method";
 import { RecentlyAdded } from "@/components/home/recently-added";
 import { TrendingProducts } from "@/components/home/trending-products";
-import { catalog } from "@/lib/catalog";
+import { getCategorySummaries, getProduct, listProducts } from "@/lib/catalog";
 import { defaultQuery, productsHref, type ProductQuery } from "@/lib/catalog/query";
 
-// Editorial picks for the prototype; later these come from a curated API field.
+// Editorial picks; later these come from a curated API field.
 const SPOTLIGHT = "sony-wh-1000xm4";
 const COMPARISON = "polaroid-onestep-2";
 
@@ -19,13 +23,15 @@ const collectionDefs: { title: string; description: string; filter: Partial<Prod
   { title: "Sneakers", description: "Everyday and running shoes, priced by total cost.", filter: { categories: ["footwear"] } },
 ];
 
-export default async function HomePage() {
-  const list = (changes: Partial<ProductQuery>) => catalog.listProducts({ ...defaultQuery, ...changes });
+async function HomeContent() {
+  // Request time, not build time: the catalog comes from the API (cached for minutes).
+  await connection();
+  const list = (changes: Partial<ProductQuery>) => listProducts({ ...defaultQuery, ...changes });
 
   const [spotlight, comparison, categories, drops, cheapest, newest, ...collectionPages] = await Promise.all([
-    catalog.getProduct(SPOTLIGHT),
-    catalog.getProduct(COMPARISON),
-    catalog.listCategorySummaries(),
+    getProduct(SPOTLIGHT),
+    getProduct(COMPARISON),
+    getCategorySummaries(),
     list({ sort: "drops", pageSize: 8 }),
     list({ sort: "price-asc", pageSize: 8 }),
     list({ sort: "newest", pageSize: 8 }),
@@ -57,6 +63,16 @@ export default async function HomePage() {
       <Collections collections={collections} />
       {comparison && <ComparisonPreview item={comparison} />}
       <RecentlyAdded items={newest.items.slice(0, 5)} />
+    </>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <>
+      <Suspense fallback={<HomeSkeleton />}>
+        <HomeContent />
+      </Suspense>
       <Method />
     </>
   );

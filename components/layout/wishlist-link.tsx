@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { useWishlist } from "@/lib/wishlist";
 
 export function WishlistLink({ className }: { className?: string }) {
-  const count = useWishlist().length;
+  const count = useWishlist().data?.length ?? 0;
 
   return (
     <Link
@@ -19,7 +19,7 @@ export function WishlistLink({ className }: { className?: string }) {
     >
       <Heart aria-hidden className="size-[1.125rem]" />
       <span className="sr-only lg:not-sr-only">Wishlist</span>
-      <span className="sr-only">, {count} saved</span>
+      {count > 0 && <span className="sr-only">, {count} saved</span>}
       {count > 0 && (
         <span
           aria-hidden

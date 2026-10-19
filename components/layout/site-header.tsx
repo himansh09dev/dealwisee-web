@@ -1,12 +1,10 @@
-import Link from "next/link";
 import { Suspense } from "react";
-
-import { Button } from "@/components/ui/button";
 
 import { DesktopNav } from "./desktop-nav";
 import { HeaderSearch, MobileSearch } from "./header-search";
 import { Logo } from "./logo";
 import { MobileNav } from "./mobile-nav";
+import { UserMenu } from "./user-menu";
 import { WishlistLink } from "./wishlist-link";
 
 export function SiteHeader() {
@@ -22,9 +20,10 @@ export function SiteHeader() {
           <HeaderSearch />
           <MobileSearch />
           <WishlistLink />
-          <Button asChild variant="secondary" size="sm" className="hidden md:inline-flex">
-            <Link href="/login">Sign in</Link>
-          </Button>
+          {/* usePathname can suspend on dynamic routes. */}
+          <Suspense fallback={null}>
+            <UserMenu />
+          </Suspense>
           <MobileNav />
         </div>
       </div>

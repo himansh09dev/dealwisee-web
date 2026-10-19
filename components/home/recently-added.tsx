@@ -31,7 +31,7 @@ export function RecentlyAdded({ items }: { items: ProductWithInsight[] }) {
                 {String(i + 1).padStart(2, "0")}
               </span>
               <span className="relative block aspect-square overflow-hidden rounded-md bg-sunken">
-                <Image src={product.image.src} alt="" fill sizes="4rem" className="object-cover" />
+                <Image src={product.image.url} alt="" fill sizes="4rem" className="object-cover" />
               </span>
               <span className="min-w-0">
                 <span className="block truncate text-sm font-medium text-ink group-hover:underline group-hover:decoration-line-strong group-hover:underline-offset-3">
@@ -42,7 +42,7 @@ export function RecentlyAdded({ items }: { items: ProductWithInsight[] }) {
               <span className="hidden text-sm text-ink-muted sm:block">{categoryLabels[product.category]}</span>
               <span className="hidden text-xs text-ink-subtle tabular-nums sm:block">
                 <span className="sr-only">Added </span>
-                {formatShortDate(product.addedAt)}
+                {formatShortDate(product.createdAt)}
               </span>
               <span className="text-right text-sm font-semibold text-ink tabular-nums">
                 <span className="sr-only">from </span>

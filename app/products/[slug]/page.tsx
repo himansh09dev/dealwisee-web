@@ -11,17 +11,14 @@ import { ProductCard } from "@/components/product/product-card";
 import { ProductGallery } from "@/components/product/product-gallery";
 import { WishlistButton } from "@/components/product/wishlist-button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { catalog } from "@/lib/catalog";
-import { getPriceSeries } from "@/lib/catalog/insight";
+import { getProduct, getRelatedProducts } from "@/lib/catalog";
+import { categoryLabels } from "@/lib/catalog/schema";
+import { priceSeries } from "@/lib/catalog/schema";
 import { formatDelta, formatPrice } from "@/lib/format";
-
-export async function generateStaticParams() {
-  return (await catalog.listSlugs()).map((slug) => ({ slug }));
-}
 
 export async function generateMetadata({ params }: PageProps<"/products/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  const item = await catalog.getProduct(slug);
+  const item = await getProduct(slug);
   if (!item) return { title: "Product not found" };
   const { product, insight } = item;
   const title = `${product.brand} ${product.name}`;
@@ -30,7 +27,7 @@ export async function generateMetadata({ params }: PageProps<"/products/[slug]">
     title,
     description,
     alternates: { canonical: `/products/${product.slug}` },
-    openGraph: { title, description, images: [{ url: product.image.src, alt: product.image.alt }] },
+    openGraph: { title, description, images: [{ url: product.image.url, alt: product.image.alt }] },
   };
 }
 
@@ -63,14 +60,12 @@ function ProductSkeleton() {
 
 async function ProductDetail({ params }: Pick<PageProps<"/products/[slug]">, "params">) {
   const { slug } = await params;
-  const item = await catalog.getProduct(slug);
+  const item = await getProduct(slug);
   if (!item) notFound();
   const { product, insight } = item;
-  const [category, related] = await Promise.all([
-    catalog.getCategory(product.category),
-    catalog.getRelatedProducts(product.slug, 4),
-  ]);
-  const series = getPriceSeries(product);
+  const related = await getRelatedProducts(product, 4);
+  const category = { id: product.category, name: categoryLabels[product.category] };
+  const series = priceSeries(product);
   const listPrice = product.listPrice;
   const savings = listPrice !== undefined && listPrice > insight.best.total ? listPrice - insight.best.total : null;
 
@@ -83,16 +78,12 @@ async function ProductDetail({ params }: Pick<PageProps<"/products/[slug]">, "pa
               Products
             </Link>
           </li>
-          {category && (
-            <>
-              <li aria-hidden>/</li>
-              <li>
-                <Link href={`/products?category=${category.id}`} className="focus-ring rounded-xs hover:text-ink">
-                  {category.name}
-                </Link>
-              </li>
-            </>
-          )}
+          <li aria-hidden>/</li>
+          <li>
+            <Link href={`/products?category=${category.id}`} className="focus-ring rounded-xs hover:text-ink">
+              {category.name}
+            </Link>
+          </li>
           <li aria-hidden>/</li>
           <li aria-current="page" className="truncate text-ink">
             {product.brand} {product.name}
@@ -116,7 +107,7 @@ async function ProductDetail({ params }: Pick<PageProps<"/products/[slug]">, "pa
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
                 <p className="text-sm text-ink-muted">
-                  Lowest total at <span className="font-medium text-ink">{insight.best.store.name}</span>
+                  Lowest total at <span className="font-medium text-ink">{insight.best.storeName}</span>
                 </p>
                 <Price amount={insight.best.total} size="xl" className="mt-1" />
               </div>
@@ -137,6 +128,12 @@ async function ProductDetail({ params }: Pick<PageProps<"/products/[slug]">, "pa
                   </dd>
                 </div>
               )}
+              {product.previousPrice !== undefined && product.previousPrice !== product.currentPrice && (
+                <div>
+                  <dt className="inline text-ink-muted">Last week&rsquo;s lowest: </dt>
+                  <dd className="inline text-ink tabular-nums">{formatPrice(product.previousPrice)}</dd>
+                </div>
+              )}
               <div>
                 <dt className="inline text-ink-muted">Availability: </dt>
                 <dd className="inline text-ink">
@@ -146,13 +143,15 @@ async function ProductDetail({ params }: Pick<PageProps<"/products/[slug]">, "pa
             </dl>
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <CompareButton slug={product.slug} productName={product.name} />
-              <WishlistButton
-                slug={product.slug}
-                productName={product.name}
-                variant="inline"
-                className="size-12"
-              />
+              <WishlistButton item={item} variant="inline" className="size-12" />
             </div>
+          </section>
+
+          <section aria-labelledby="about-title" className="mt-10">
+            <h2 id="about-title" className="font-display text-2xl tracking-tight text-ink">
+              About this product
+            </h2>
+            <p className="mt-2 max-w-prose text-pretty text-ink-muted">{product.description}</p>
           </section>
 
           <section aria-labelledby="offers-title" className="mt-10">
@@ -214,7 +213,7 @@ async function ProductDetail({ params }: Pick<PageProps<"/products/[slug]">, "pa
           </h2>
           <ul className="mt-8 grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-4 lg:gap-x-6">
             {related.map((r) => (
-              <li key={r.product.slug} className="flex">
+              <li key={r.product.id} className="flex">
                 <ProductCard {...r} className="w-full" />
               </li>
             ))}

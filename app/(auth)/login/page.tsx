@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 
-import { AuthShell } from "@/components/auth/auth-shell";
+import { AuthShell, FormSkeleton } from "@/components/auth/auth-shell";
 import { SignInForm } from "@/components/auth/sign-in-form";
 
 export const metadata: Metadata = { title: "Sign in", robots: { index: false } };
@@ -21,7 +22,10 @@ export default function LoginPage() {
         </>
       }
     >
-      <SignInForm />
+      {/* The form reads ?next= (request data), so it renders inside Suspense. */}
+      <Suspense fallback={<FormSkeleton />}>
+        <SignInForm />
+      </Suspense>
     </AuthShell>
   );
 }

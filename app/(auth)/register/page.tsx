@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 
-import { AuthShell } from "@/components/auth/auth-shell";
+import { AuthShell, FormSkeleton } from "@/components/auth/auth-shell";
 import { RegisterForm } from "@/components/auth/register-form";
 
 export const metadata: Metadata = { title: "Create an account", robots: { index: false } };
@@ -21,7 +22,10 @@ export default function RegisterPage() {
         </>
       }
     >
-      <RegisterForm />
+      {/* The form reads ?next= (request data), so it renders inside Suspense. */}
+      <Suspense fallback={<FormSkeleton />}>
+        <RegisterForm />
+      </Suspense>
     </AuthShell>
   );
 }

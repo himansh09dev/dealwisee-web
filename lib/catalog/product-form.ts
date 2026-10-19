@@ -1,11 +1,20 @@
 import { z } from "zod";
 
-import { categoryIdSchema, productSchema, slugSchema, specSchema, type Product } from "./schema";
+import {
+  categoryIdSchema,
+  imageSchema,
+  slugSchema,
+  specSchema,
+  storeIdSchema,
+  type Product,
+  type ProductInput,
+} from "@pricepilot/contracts";
 
 /*
- * Admin form shape. Money is typed as text in dollars (what people type),
- * validated here, then converted to integer cents for the Product contract.
- * Input and output types are identical, which keeps react-hook-form simple.
+ * Admin form shape. Money is typed as dollars (what people type), validated
+ * here, then converted to integer cents for the API contract. Input and
+ * output types are identical, which keeps react-hook-form simple. The API
+ * re-validates everything; this is for fast, field-level feedback.
  */
 
 const money = z
@@ -18,34 +27,21 @@ const optionalMoney = z
   .trim()
   .refine((v) => v === "" || /^\d{1,6}(\.\d{1,2})?$/.test(v), "Enter an amount like 129 or 129.99");
 
-const imageSrc = z
-  .string()
-  .trim()
-  .min(1, "Add an image URL")
-  .refine(
-    (v) => v.startsWith("/images/") || /^https:\/\/[^\s]+$/.test(v),
-    "Use an https:// URL or a path under /images/",
-  );
-
 export const productFormSchema = z.object({
   name: z.string().trim().min(1, "Enter a product name").max(120),
   brand: z.string().trim().min(1, "Enter a brand").max(60),
   slug: slugSchema,
   category: categoryIdSchema,
   summary: z.string().trim().min(1, "Add a one-line summary").max(140, "Keep it under 140 characters"),
-  imageSrc,
-  imageAlt: z
-    .string()
-    .trim()
-    .min(1, "Describe the image for people who can't see it")
-    .max(200),
+  description: z.string().trim().min(1, "Add a description").max(2000, "Keep it under 2,000 characters"),
+  imageSrc: imageSchema.shape.url,
+  imageAlt: z.string().trim().min(1, "Describe what's in the photo").max(200),
   listPrice: optionalMoney,
-  addedAt: z.iso.date("Use a valid date"),
-  specs: z.array(specSchema).max(20),
+  specs: z.array(specSchema).max(30),
   offers: z
     .array(
       z.object({
-        storeId: z.string().min(1, "Choose a store"),
+        storeId: z.union([storeIdSchema, z.literal("")]).refine((v): boolean => v !== "", "Choose a store"),
         price: money.refine((v) => Number(v) > 0, "Price must be above zero"),
         shipping: money,
         inStock: z.boolean(),
@@ -64,32 +60,28 @@ export function slugify(text: string) {
   return text
     .toLowerCase()
     .normalize("NFKD")
-    .replace(/[̀-ͯ]/g, "")
+    .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 80);
 }
 
-/** Form values → Product. Price history is never invented: edits keep existing history only. */
-export function toProduct(values: ProductFormValues, existing?: Product): Product {
-  return productSchema.parse({
+/** Form values → API body. Price history is recorded by the system and never sent. */
+export function toProductInput(values: ProductFormValues, sourceUrl?: string): ProductInput {
+  return {
     slug: values.slug,
     name: values.name,
     brand: values.brand,
     category: values.category,
     summary: values.summary,
-    image: { src: values.imageSrc, alt: values.imageAlt, sourceUrl: existing?.image.sourceUrl },
-    listPrice: values.listPrice === "" ? undefined : toCents(values.listPrice),
-    addedAt: values.addedAt,
-    offers: values.offers.map((o) => ({
-      storeId: o.storeId,
-      price: toCents(o.price),
-      shipping: toCents(o.shipping),
-      inStock: o.inStock,
-    })),
-    history: existing?.history,
+    description: values.description,
+    image: { url: values.imageSrc, alt: values.imageAlt, ...(sourceUrl ? { sourceUrl } : {}) },
+    ...(values.listPrice !== "" ? { listPrice: toCents(values.listPrice) } : {}),
+    offers: values.offers.flatMap((o) =>
+      o.storeId === "" ? [] : [{ storeId: o.storeId, price: toCents(o.price), shipping: toCents(o.shipping), inStock: o.inStock }],
+    ),
     specs: values.specs,
-  });
+  };
 }
 
 export function fromProduct(product: Product): ProductFormValues {
@@ -99,10 +91,10 @@ export function fromProduct(product: Product): ProductFormValues {
     slug: product.slug,
     category: product.category,
     summary: product.summary,
-    imageSrc: product.image.src,
+    description: product.description,
+    imageSrc: product.image.url,
     imageAlt: product.image.alt,
     listPrice: product.listPrice === undefined ? "" : toDollars(product.listPrice),
-    addedAt: product.addedAt,
     specs: product.specs,
     offers: product.offers.map((o) => ({
       storeId: o.storeId,
@@ -111,4 +103,11 @@ export function fromProduct(product: Product): ProductFormValues {
       inStock: o.inStock,
     })),
   };
+}
+
+/** API field paths (e.g. "image.url", "offers.0.price") → form field names. */
+export function formFieldForApiPath(path: string): string {
+  if (path === "image.url") return "imageSrc";
+  if (path === "image.alt") return "imageAlt";
+  return path;
 }

@@ -10,7 +10,7 @@ export default function WishlistPage() {
   return (
     <>
       <PageIntro eyebrow="Your list" title="Wishlist">
-        Saved on this device for now. Once accounts launch, your list will follow you across devices.
+        Products you&rsquo;re keeping an eye on, saved to your account.
       </PageIntro>
       <div className="page-container">
         <WishlistGrid />

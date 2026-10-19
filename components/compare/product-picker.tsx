@@ -70,7 +70,7 @@ export function ProductPicker({ open, onOpenChange, title, description, exclude,
           return (
             <li key={product.slug} className="flex items-center gap-3 py-2.5">
               <span className="relative size-12 shrink-0 overflow-hidden rounded-md bg-sunken">
-                <Image src={product.image.src} alt="" fill sizes="3rem" className="object-cover" />
+                <Image src={product.image.url} alt="" fill sizes="3rem" className="object-cover" />
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-sm font-medium text-ink">{product.name}</span>

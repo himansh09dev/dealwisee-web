@@ -6,12 +6,15 @@ import { useState } from "react";
 
 import { Button, IconButton } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useSession, useSignOut } from "@/lib/auth/use-session";
 
 import { LogoMark } from "./logo";
 import { categoryLinks, primaryNav } from "./nav-config";
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
+  const { data: user } = useSession();
+  const signOut = useSignOut();
   const close = () => setOpen(false);
 
   return (
@@ -58,11 +61,33 @@ export function MobileNav() {
           </ul>
 
           <div className="mt-auto pt-8">
-            <Button asChild variant="secondary" className="w-full">
-              <Link href="/login" onClick={close}>
-                Sign in
-              </Link>
-            </Button>
+            {user ? (
+              <div className="grid gap-3">
+                <p className="text-sm text-ink-muted">
+                  Signed in as <span className="font-medium text-ink">{user.name}</span>
+                </p>
+                {user.role === "admin" && (
+                  <Button asChild variant="secondary" className="w-full">
+                    <Link href="/admin/products" onClick={close}>
+                      Manage products
+                    </Link>
+                  </Button>
+                )}
+                <Button
+                  variant="ghost"
+                  className="w-full"
+                  onClick={() => signOut.mutate(undefined, { onSettled: close })}
+                >
+                  Sign out
+                </Button>
+              </div>
+            ) : (
+              <Button asChild variant="secondary" className="w-full">
+                <Link href="/login" onClick={close}>
+                  Sign in
+                </Link>
+              </Button>
+            )}
           </div>
         </nav>
       </DialogContent>

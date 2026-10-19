@@ -1,42 +1,33 @@
+import { productListMetaSchema, productSchema } from "@pricepilot/contracts";
 import { z } from "zod";
 
-import { categoryIdSchema, productWithInsightSchema } from "./schema";
+import { clientApi } from "@/lib/api/client";
 
-/*
- * Browser-side fetchers. Responses are parsed with the shared schemas so a
- * contract change fails loudly here instead of rendering `undefined`.
- */
+import { withInsight } from "./schema";
 
-const itemsSchema = z.object({ items: z.array(productWithInsightSchema) });
+/* Browser-side catalog reads (compare page, product picker). */
 
-const facetSchema = z.object({ value: z.string(), label: z.string(), count: z.number() });
-const productPageSchema = z.object({
-  items: z.array(productWithInsightSchema),
-  total: z.number(),
-  page: z.number(),
-  pageCount: z.number(),
-  pageSize: z.number(),
-  facets: z.object({
-    categories: z.array(facetSchema.extend({ value: categoryIdSchema })),
-    brands: z.array(facetSchema),
-  }),
+const compareResponse = z.object({
+  data: z.array(productSchema),
+  meta: z.object({ missing: z.array(z.string()) }),
 });
-
-async function getJson(url: string, signal?: AbortSignal): Promise<unknown> {
-  const res = await fetch(url, { signal, headers: { accept: "application/json" } });
-  if (!res.ok) throw new Error(`Request failed (${res.status})`);
-  return res.json();
-}
+const listResponse = z.object({ data: z.array(productSchema), meta: productListMetaSchema });
 
 export async function fetchProductsBySlugs(slugs: readonly string[], signal?: AbortSignal) {
   if (slugs.length === 0) return [];
-  const data = await getJson(`/api/products?slugs=${slugs.map(encodeURIComponent).join(",")}`, signal);
-  return itemsSchema.parse(data).items;
+  const { data } = await clientApi(`/products/compare?slugs=${slugs.map(encodeURIComponent).join(",")}`, compareResponse, {
+    signal,
+  });
+  return data.map(withInsight);
 }
 
 export async function searchProducts(q: string, signal?: AbortSignal) {
-  const data = await getJson(`/api/products?sort=name-asc&limit=24&q=${encodeURIComponent(q)}`, signal);
-  return productPageSchema.parse(data);
+  const { data, meta } = await clientApi(
+    `/products?sort=name-asc&pageSize=24&q=${encodeURIComponent(q)}`,
+    listResponse,
+    { signal },
+  );
+  return { ...meta, items: data.map(withInsight) };
 }
 
 export const productKeys = {

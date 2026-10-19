@@ -35,10 +35,10 @@ export function Collections({ collections }: { collections: CollectionCard[] }) 
               <div className="flex -space-x-3" aria-hidden>
                 {c.images.slice(0, 3).map((img) => (
                   <span
-                    key={img.src}
+                    key={img.url}
                     className="relative size-12 overflow-hidden rounded-full bg-sunken ring-2 ring-surface"
                   >
-                    <Image src={img.src} alt="" fill sizes="3rem" className="object-cover" />
+                    <Image src={img.url} alt="" fill sizes="3rem" className="object-cover" />
                   </span>
                 ))}
               </div>

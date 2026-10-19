@@ -12,7 +12,7 @@ import { Pagination } from "@/components/listing/pagination";
 import { SearchBox } from "@/components/listing/search-box";
 import { SortSelect } from "@/components/listing/sort-select";
 import { ProductCard } from "@/components/product/product-card";
-import { catalog } from "@/lib/catalog";
+import { listProducts } from "@/lib/catalog";
 import { parseProductQuery } from "@/lib/catalog/query";
 
 export const metadata: Metadata = {
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 
 async function Listing({ searchParams }: Pick<PageProps<"/products">, "searchParams">) {
   const query = parseProductQuery(await searchParams);
-  const result = await catalog.listProducts(query);
+  const result = await listProducts(query);
   const first = (result.page - 1) * result.pageSize + 1;
   const last = first + result.items.length - 1;
 
@@ -63,7 +63,7 @@ async function Listing({ searchParams }: Pick<PageProps<"/products">, "searchPar
             ) : (
               <ul className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 lg:gap-x-6 xl:grid-cols-4">
                 {result.items.map((item, i) => (
-                  <li key={item.product.slug} className="flex">
+                  <li key={item.product.id} className="flex">
                     <ProductCard {...item} priority={i < 4} className="w-full" />
                   </li>
                 ))}

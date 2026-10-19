@@ -41,7 +41,7 @@ export function ProductImage({
       )}
     >
       <Image
-        src={image.src}
+        src={image.url}
         alt={image.alt}
         fill
         sizes={sizes}

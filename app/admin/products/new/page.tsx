@@ -4,12 +4,11 @@ import { Suspense } from "react";
 import { ProductForm } from "@/components/admin/product-form";
 import { PageIntro } from "@/components/layout/page-intro";
 import { Skeleton } from "@/components/ui/skeleton";
-import { catalog } from "@/lib/catalog";
+import { categoryList, stores } from "@/lib/catalog/schema";
 
 export const metadata: Metadata = { title: "New product" };
 
-export default async function NewProductPage() {
-  const [stores, categories] = await Promise.all([catalog.listStores(), catalog.listCategories()]);
+export default function NewProductPage() {
   return (
     <>
       <PageIntro eyebrow="Admin · Products" title="New product" />
@@ -17,8 +16,8 @@ export default async function NewProductPage() {
         {/* The form generates row ids at render time, so it renders per request, not at build. */}
         <Suspense fallback={<Skeleton className="h-96 w-full rounded-xl" />}>
           <ProductForm
-            originalSlug={null}
-            categories={categories}
+            target={null}
+            categories={categoryList}
             stores={stores}
             defaultValues={{
               name: "",
@@ -29,7 +28,7 @@ export default async function NewProductPage() {
               imageSrc: "",
               imageAlt: "",
               listPrice: "",
-              addedAt: "",
+              description: "",
               specs: [],
               offers: [{ storeId: "", price: "", shipping: "0", inStock: true }],
             }}

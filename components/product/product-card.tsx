@@ -33,11 +33,7 @@ export function ProductCard({
           priority={priority}
           className="[&_img]:transition-transform [&_img]:duration-(--duration-slow) [&_img]:ease-out-soft motion-safe:group-hover:[&_img]:scale-[1.03]"
         />
-        <WishlistButton
-          slug={product.slug}
-          productName={product.name}
-          className="absolute top-2.5 right-2.5 z-10"
-        />
+        <WishlistButton item={{ product, insight }} className="absolute top-2.5 right-2.5 z-10" />
       </div>
 
       <div className="flex flex-1 flex-col pt-3.5">
@@ -58,7 +54,7 @@ export function ProductCard({
             {insight.history && <PriceDelta ratio={insight.history.vsAverage} />}
           </div>
           <p className="mt-1 text-xs text-ink-muted">
-            Best at {insight.best.store.name}
+            Best at {insight.best.storeName}
             <span aria-hidden className="px-1.5 text-line-strong">
               /
             </span>

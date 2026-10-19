@@ -1,6 +1,7 @@
 import { Inbox, Plus, RotateCcw, TriangleAlert } from "lucide-react";
 import type { Metadata } from "next";
-import type { ReactNode } from "react";
+import { connection } from "next/server";
+import { Suspense, type ReactNode } from "react";
 
 import { PageIntro } from "@/components/layout/page-intro";
 import { Price, PriceDelta } from "@/components/product/price";
@@ -11,9 +12,8 @@ import { SearchField } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState, ErrorState } from "@/components/ui/state";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { categoryList } from "@/lib/catalog/schema";
-import { catalog } from "@/lib/catalog";
-import { getPriceSeries } from "@/lib/catalog/insight";
+import { listProducts } from "@/lib/catalog";
+import { categoryList, priceSeries } from "@/lib/catalog/schema";
 import { defaultQuery } from "@/lib/catalog/query";
 
 import { DemoButton, DialogDemo, IconButtonDemo, FilterDemo, FormDemo, ToastDemo } from "./demos";
@@ -60,18 +60,36 @@ function Block({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
-export default async function DesignPage() {
-  const { items } = await catalog.listProducts({ ...defaultQuery, pageSize: 100 });
-  const sample = items.slice(0, 3);
-  const first = items[0];
-  const firstSeries = first ? getPriceSeries(first.product) : null;
-
+export default function DesignPage() {
   return (
     <>
       <PageIntro eyebrow="Internal" title="Design system">
         Tokens and components used across PricePilot. Every control on this page is live. Rationale
         lives in <code className="font-mono text-base">docs/design-system.md</code>.
       </PageIntro>
+      <Suspense
+        fallback={
+          <div className="page-container">
+            <Skeleton className="h-96 w-full rounded-xl" />
+          </div>
+        }
+      >
+        <DesignContent />
+      </Suspense>
+    </>
+  );
+}
+
+async function DesignContent() {
+  // Sample products come from the API at request time.
+  await connection();
+  const { items } = await listProducts({ ...defaultQuery, pageSize: 48 });
+  const sample = items.slice(0, 3);
+  const first = items[0];
+  const firstSeries = first ? priceSeries(first.product) : null;
+
+  return (
+    <>
 
       <div className="page-container">
         <Block title="Color tokens">

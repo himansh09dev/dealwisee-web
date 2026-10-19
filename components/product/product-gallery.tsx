@@ -30,7 +30,7 @@ export function ProductGallery({ product }: { product: Product }) {
         <DialogTitle className="sr-only">{product.name}</DialogTitle>
         <DialogDescription className="sr-only">{product.image.alt}</DialogDescription>
         <div className="relative aspect-square max-h-[calc(92vh-2rem)] w-full overflow-hidden rounded-lg bg-sunken sm:aspect-[4/3]">
-          <Image src={product.image.src} alt={product.image.alt} fill sizes="90vw" className="object-contain" />
+          <Image src={product.image.url} alt={product.image.alt} fill sizes="90vw" className="object-contain" />
         </div>
       </DialogContent>
     </Dialog>
