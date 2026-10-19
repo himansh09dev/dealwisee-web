@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
 import { ApiError, readEnvelope } from "@/lib/api/errors";
-import { safeNext } from "@/lib/auth/use-session";
+import { afterSignInPath, safeNext } from "@/lib/auth/use-session";
 
 const json = (status: number, body: unknown) =>
   new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
@@ -43,5 +43,24 @@ describe("safeNext", () => {
     [null, "/"],
   ])("%s → %s", (input, expected) => {
     expect(safeNext(input)).toBe(expected);
+  });
+});
+
+describe("afterSignInPath", () => {
+  it("sends admins to the dashboard unless a page asked for them back", () => {
+    expect(afterSignInPath("admin", {})).toBe("/admin/products");
+    expect(afterSignInPath("admin", { from: "/products/jbl-flip-5" })).toBe("/admin/products");
+    expect(afterSignInPath("admin", { next: "/wishlist" })).toBe("/wishlist");
+  });
+
+  it("returns shoppers to where they were", () => {
+    expect(afterSignInPath("user", {})).toBe("/");
+    expect(afterSignInPath("user", { from: "/products/jbl-flip-5" })).toBe("/products/jbl-flip-5");
+    expect(afterSignInPath("user", { next: "/wishlist", from: "/compare" })).toBe("/wishlist");
+  });
+
+  it("ignores unsafe destinations", () => {
+    expect(afterSignInPath("user", { next: "//evil.example", from: "https://evil.example" })).toBe("/");
+    expect(afterSignInPath("admin", { next: "//evil.example" })).toBe("/admin/products");
   });
 });

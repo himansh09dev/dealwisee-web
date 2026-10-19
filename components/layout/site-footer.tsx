@@ -21,7 +21,10 @@ const columns = [
   },
   {
     title: "Project",
-    links: [{ href: "/design", label: "Design system" }],
+    links: [
+      { href: "/admin/products", label: "Admin dashboard" },
+      { href: "/design", label: "Design system" },
+    ],
   },
 ];
 

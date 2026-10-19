@@ -7,25 +7,25 @@ import type { FieldValues, Path, UseFormSetError } from "react-hook-form";
 
 import { toast } from "@/components/ui/toaster";
 import { isApiError } from "@/lib/api/errors";
-import { safeNext, sessionKey } from "@/lib/auth/use-session";
+import { afterSignInPath, sessionKey } from "@/lib/auth/use-session";
 
 /**
  * Shared success/failure handling for sign-in and registration:
- * - success: cache the user, refetch personal data, go to ?next (same-site only)
+ * - success: cache the user, refetch personal data, go where afterSignInPath says
  * - 400: put the API's field messages on the matching inputs
  * - anything else: one form-level message the user can act on
  */
 export function useAuthSubmit<T extends FieldValues>(fields: readonly Path<T>[], setError: UseFormSetError<T>) {
   const queryClient = useQueryClient();
   const router = useRouter();
-  const next = safeNext(useSearchParams().get("next"));
+  const searchParams = useSearchParams();
 
   return {
     onSuccess(user: PublicUser, message: string) {
       queryClient.setQueryData(sessionKey, user);
       void queryClient.invalidateQueries({ queryKey: ["wishlist"] });
       toast(message);
-      router.replace(next);
+      router.replace(afterSignInPath(user.role, { next: searchParams.get("next"), from: searchParams.get("from") }));
       router.refresh();
     },
     onError(err: unknown) {

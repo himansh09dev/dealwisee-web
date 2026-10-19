@@ -8,7 +8,13 @@ import { z } from "zod";
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   PORT: z.coerce.number().int().min(1).max(65535).default(4000),
-  MONGODB_URI: z.string().regex(/^mongodb(\+srv)?:\/\//, "MONGODB_URI must be a mongodb:// or mongodb+srv:// URI"),
+  MONGODB_URI: z
+    .string()
+    .regex(/^mongodb(\+srv)?:\/\//, "MONGODB_URI must be a mongodb:// or mongodb+srv:// URI")
+    .refine(
+      (v) => !/<[^>]*>/.test(v),
+      "MONGODB_URI still contains a placeholder such as <db_password>. Put your real database user and password in api/.env",
+    ),
   /** Comma-separated list of browser origins allowed by CORS and the CSRF origin check. */
   FRONTEND_ORIGIN: z
     .string()

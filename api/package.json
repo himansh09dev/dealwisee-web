@@ -35,6 +35,7 @@
     "seed": "node --env-file-if-exists=.env src/seed/seed.ts",
     "db": "node scripts/dev-db.ts",
     "typecheck": "tsc -p tsconfig.json",
-    "test": "vitest run"
+    "test": "vitest run",
+    "db:check": "node --env-file-if-exists=.env scripts/check-db.ts"
   }
 }

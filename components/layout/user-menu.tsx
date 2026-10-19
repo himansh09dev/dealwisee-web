@@ -26,10 +26,11 @@ export function UserMenu() {
   if (isPending) return <Skeleton className="hidden h-8 w-20 md:block" />;
 
   if (!user) {
-    const next = pathname === "/login" || pathname === "/register" ? "" : `?next=${encodeURIComponent(pathname)}`;
+    // "from", not "next": returning here is a convenience, so admins may land on the dashboard instead.
+    const from = ["/", "/login", "/register"].includes(pathname) ? "" : `?from=${encodeURIComponent(pathname)}`;
     return (
       <Button asChild variant="secondary" size="sm" className="hidden md:inline-flex">
-        <Link href={`/login${next}`}>Sign in</Link>
+        <Link href={`/login${from}`}>Sign in</Link>
       </Button>
     );
   }

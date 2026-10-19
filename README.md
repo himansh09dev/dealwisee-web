@@ -32,7 +32,11 @@ Further reading:
      npm run db
      ```
 
-   - **Your own:** a local MongoDB install, or a MongoDB Atlas cluster (the free M0 tier works). Put its URI in `MONGODB_URI` in step 3.
+   - **Your own:** a local MongoDB install, or a MongoDB Atlas cluster (the free M0 tier works). Put its URI in `MONGODB_URI` in step 3. For Atlas:
+     - Add your current IP under **Network Access**.
+     - Use a database user (not your Atlas login).
+     - Include `/pricepilot` before the `?` in the URI, otherwise Atlas uses a database named `test`.
+     - URL-encode special characters in the password.
 
 3. **Configure:**
 
