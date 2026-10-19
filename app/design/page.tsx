@@ -11,8 +11,10 @@ import { SearchField } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState, ErrorState } from "@/components/ui/state";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { categories } from "@/lib/catalog/data";
-import { getCatalog, getPriceSeries } from "@/lib/catalog/queries";
+import { categoryList } from "@/lib/catalog/schema";
+import { catalog } from "@/lib/catalog";
+import { getPriceSeries } from "@/lib/catalog/insight";
+import { defaultQuery } from "@/lib/catalog/query";
 
 import { DemoButton, DialogDemo, IconButtonDemo, FilterDemo, FormDemo, ToastDemo } from "./demos";
 
@@ -58,10 +60,11 @@ function Block({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
-export default function DesignPage() {
-  const catalog = getCatalog();
-  const sample = catalog.slice(0, 3);
-  const first = catalog[0];
+export default async function DesignPage() {
+  const { items } = await catalog.listProducts({ ...defaultQuery, pageSize: 100 });
+  const sample = items.slice(0, 3);
+  const first = items[0];
+  const firstSeries = first ? getPriceSeries(first.product) : null;
 
   return (
     <>
@@ -148,9 +151,7 @@ export default function DesignPage() {
             <Price amount={24800} compareAt={34999} size="xl" />
             <Price amount={8999} compareAt={9999} size="lg" />
             <Price amount={4599} />
-            {first && (
-              <PriceHistoryChart series={getPriceSeries(first.product)} variant="spark" className="w-32" />
-            )}
+            {firstSeries && <PriceHistoryChart series={firstSeries} variant="spark" className="w-32" />}
           </div>
         </Block>
 
@@ -172,8 +173,8 @@ export default function DesignPage() {
             </TabsList>
           </Tabs>
           <FilterDemo
-            categories={categories}
-            items={catalog.map(({ product, insight }) => ({
+            categories={categoryList}
+            items={items.map(({ product, insight }) => ({
               category: product.category,
               total: insight.best.total,
             }))}

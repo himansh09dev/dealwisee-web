@@ -37,7 +37,8 @@ export function PriceHistoryChart({ series, variant = "full", className }: Price
   const first = series[0] ?? max;
   const down = last <= first;
 
-  const summary = `Over 12 weeks the lowest price ranged from ${formatPrice(min)} to ${formatPrice(max)}; it is ${formatPrice(last)} now.`;
+  const weeks = series.length;
+  const summary = `Over ${weeks} weeks the lowest price ranged from ${formatPrice(min)} to ${formatPrice(max)}; it is ${formatPrice(last)} now.`;
 
   return (
     <figure className={cn("w-full", className)}>
@@ -70,10 +71,10 @@ export function PriceHistoryChart({ series, variant = "full", className }: Price
       </svg>
       {variant === "full" ? (
         <figcaption className="mt-2 flex justify-between text-xs text-ink-muted tabular-nums">
-          <span>12 weeks ago</span>
+          <span>{weeks - 1} weeks ago</span>
           <span className="flex items-center gap-1.5">
             <span aria-hidden className="h-px w-3 border-t border-dashed border-line-strong" />
-            12-wk avg {formatPrice(Math.round(avg))}
+            {weeks}-wk avg {formatPrice(Math.round(avg))}
           </span>
           <span>Now</span>
           <span className="sr-only">{summary}</span>

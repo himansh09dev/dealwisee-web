@@ -1,8 +1,7 @@
 import { Check } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { getOffersByTotal } from "@/lib/catalog/queries";
-import type { Product } from "@/lib/catalog/types";
+import type { ProductWithInsight } from "@/lib/catalog/types";
 import { formatPrice } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -10,9 +9,10 @@ import { cn } from "@/lib/utils";
  * Offers ranked by total cost (price + shipping), because the sticker price
  * alone can be misleading. A real <table> so screen readers get headers.
  */
-export function OfferTable({ product, className }: { product: Product; className?: string }) {
-  const offers = getOffersByTotal(product);
-  const bestTotal = offers[0]?.total;
+export function OfferTable({ item, className }: { item: ProductWithInsight; className?: string }) {
+  const { product, insight } = item;
+  const offers = insight.offers;
+  const bestTotal = insight.best.total;
 
   return (
     <div className={cn("overflow-x-auto", className)}>

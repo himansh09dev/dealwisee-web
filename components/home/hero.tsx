@@ -7,10 +7,12 @@ import { PriceHistoryChart } from "@/components/product/price-history-chart";
 import { ProductImage } from "@/components/product/product-image";
 import { Button } from "@/components/ui/button";
 import { SearchField } from "@/components/ui/input";
-import { getPriceSeries, type ProductWithInsight } from "@/lib/catalog/queries";
+import { getPriceSeries } from "@/lib/catalog/insight";
+import type { ProductWithInsight } from "@/lib/catalog/types";
 
 export function Hero({ spotlight }: { spotlight: ProductWithInsight }) {
   const { product, insight } = spotlight;
+  const series = getPriceSeries(product);
 
   return (
     <section aria-labelledby="hero-title" className="page-container pt-10 pb-16 md:pt-16 lg:pb-24">
@@ -70,14 +72,14 @@ export function Hero({ spotlight }: { spotlight: ProductWithInsight }) {
                 <p className="eyebrow text-ink-subtle">{product.brand}</p>
                 <p className="mt-1 truncate text-sm font-medium text-ink">{product.name}</p>
               </div>
-              <PriceDelta ratio={insight.vsAverage} />
+              {insight.history && <PriceDelta ratio={insight.history.vsAverage} />}
             </div>
             <div className="mt-5 flex items-end justify-between gap-4 border-t border-dashed border-line-strong pt-4">
               <div>
                 <p className="text-xs text-ink-muted">Lowest total today</p>
                 <Price amount={insight.best.total} compareAt={product.listPrice} size="xl" className="mt-1" />
               </div>
-              <PriceHistoryChart series={getPriceSeries(product)} variant="spark" className="w-28" />
+              {series && <PriceHistoryChart series={series} variant="spark" className="w-28" />}
             </div>
             <div className="mt-4 flex items-center justify-between text-xs text-ink-muted">
               <span>

@@ -1,60 +1,73 @@
 "use client";
 
-import { Heart } from "lucide-react";
+import { Heart, RotateCcw, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 
+import { ProductGridSkeleton } from "@/components/listing/listing-skeleton";
 import { ProductCard } from "@/components/product/product-card";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { EmptyState } from "@/components/ui/state";
-import type { ProductWithInsight } from "@/lib/catalog/queries";
+import { EmptyState, ErrorState } from "@/components/ui/state";
+import { useProductsBySlugs } from "@/lib/catalog/use-products";
 import { useHydrated } from "@/lib/use-hydrated";
-import { useWishlist } from "@/lib/wishlist";
+import { useWishlist, wishlist } from "@/lib/wishlist";
 
 const grid = "grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 lg:grid-cols-4 lg:gap-x-6";
 
-export function WishlistGrid({ catalog }: { catalog: ProductWithInsight[] }) {
+export function WishlistGrid() {
   const hydrated = useHydrated();
   const slugs = useWishlist();
 
-  // The list lives in localStorage, so the server can't know it: show a skeleton, not a false "empty".
-  if (!hydrated) {
+  const { data, isPending, isError, isPlaceholderData, refetch } = useProductsBySlugs(slugs, hydrated);
+
+  // The list lives on the device, so the server can't render it. Show a
+  // skeleton (not a false "empty") until we've read it.
+  if (!hydrated || (slugs.length > 0 && isPending)) {
     return (
-      <div aria-busy="true" aria-label="Loading wishlist" className={grid}>
-        {Array.from({ length: 4 }, (_, i) => (
-          <div key={i}>
-            <Skeleton className="aspect-square w-full rounded-lg" />
-            <Skeleton className="mt-4 h-3 w-1/3" />
-            <Skeleton className="mt-2 h-4 w-4/5" />
-            <Skeleton className="mt-5 h-5 w-1/2" />
-          </div>
-        ))}
+      <div aria-busy="true" aria-label="Loading wishlist">
+        <ProductGridSkeleton count={4} />
       </div>
     );
   }
 
-  const bySlug = new Map(catalog.map((item) => [item.product.slug, item]));
-  const items = slugs.flatMap((slug) => bySlug.get(slug) ?? []);
-
-  if (items.length === 0) {
+  if (slugs.length === 0) {
     return (
       <EmptyState
         icon={<Heart />}
         title="Nothing saved yet"
-        description="Tap the heart on any product to keep an eye on it. Your list stays on this device."
+        description="Tap the heart on any product to keep an eye on it."
         action={
           <Button asChild>
-            <Link href="/">Discover products</Link>
+            <Link href="/products">Discover products</Link>
           </Button>
         }
       />
     );
   }
 
+  if (isError && !data) {
+    return (
+      <ErrorState
+        icon={<TriangleAlert />}
+        title="Your saved products didn't load"
+        description="Your list is safe on this device; we just couldn't fetch the product details."
+        action={
+          <Button onClick={() => refetch()}>
+            <RotateCcw aria-hidden />
+            Try again
+          </Button>
+        }
+      />
+    );
+  }
+
+  // Keep the user's order; drop rows still present only in placeholder data.
+  const items = slugs.flatMap((s) => data?.find((i) => i.product.slug === s) ?? []);
+  const missing = slugs.length - items.length;
+
   return (
     <>
       <p className="mb-6 text-sm text-ink-muted" aria-live="polite">
-        {items.length} {items.length === 1 ? "product" : "products"} saved
+        {slugs.length} {slugs.length === 1 ? "product" : "products"} saved. Tap a heart to remove; you can undo.
       </p>
       <ul className={grid}>
         {items.map((item) => (
@@ -63,6 +76,21 @@ export function WishlistGrid({ catalog }: { catalog: ProductWithInsight[] }) {
           </li>
         ))}
       </ul>
+      {missing > 0 && !isPlaceholderData && (
+        <p className="mt-8 flex flex-wrap items-center gap-x-3 text-sm text-ink-muted">
+          {missing} saved {missing === 1 ? "product is" : "products are"} no longer in the catalog.
+          <Button
+            variant="link"
+            size="sm"
+            onClick={() => {
+              const available = new Set(items.map((i) => i.product.slug));
+              slugs.filter((s) => !available.has(s)).forEach((s) => wishlist.remove(s));
+            }}
+          >
+            Remove from list
+          </Button>
+        </p>
+      )}
     </>
   );
 }

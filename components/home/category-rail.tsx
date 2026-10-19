@@ -1,11 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import type { CategorySummary } from "@/lib/catalog/queries";
+import type { CategorySummary } from "@/lib/catalog";
 
 import { SectionHeader } from "./section-header";
 
 export function CategoryRail({ categories }: { categories: CategorySummary[] }) {
+  if (categories.length === 0) return null;
   return (
     <section aria-labelledby="categories-title" className="page-container py-12">
       <SectionHeader id="categories-title" index="01 — Categories" title="Start with a category" />

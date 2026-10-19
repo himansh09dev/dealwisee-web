@@ -1,28 +1,21 @@
-import { Columns3 } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
 
+import { CompareView } from "@/components/compare/compare-view";
 import { PageIntro } from "@/components/layout/page-intro";
-import { Button } from "@/components/ui/button";
-import { EmptyState } from "@/components/ui/state";
 
-export const metadata: Metadata = { title: "Compare" };
+export const metadata: Metadata = {
+  title: "Compare",
+  description: "Line up two or three products to compare total prices and specifications.",
+};
 
 export default function ComparePage() {
   return (
     <>
-      <PageIntro eyebrow="Compare" title="Side-by-side comparison" />
+      <PageIntro eyebrow="Compare" title="Side by side">
+        Total prices, price context and specifications, aligned row by row.
+      </PageIntro>
       <div className="page-container">
-        <EmptyState
-          icon={<Columns3 />}
-          title="Comparison is coming in a later phase"
-          description="You'll be able to pick up to four products and compare specs, total prices and price history side by side. Each product page already lists its offers."
-          action={
-            <Button asChild variant="secondary">
-              <Link href="/">Browse products</Link>
-            </Button>
-          }
-        />
+        <CompareView />
       </div>
     </>
   );

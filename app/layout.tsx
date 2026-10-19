@@ -1,8 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Newsreader } from "next/font/google";
+import { Suspense } from "react";
 
+import { CompareTray } from "@/components/compare/compare-tray";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
+import { Providers } from "@/components/providers";
 import { Toaster } from "@/components/ui/toaster";
 
 import "./globals.css";
@@ -26,6 +29,8 @@ const newsreader = Newsreader({
 });
 
 export const metadata: Metadata = {
+  // Absolute base for Open Graph image URLs; set SITE_URL in each environment.
+  metadataBase: new URL(process.env.SITE_URL ?? "http://localhost:3000"),
   title: {
     default: "PricePilot — Compare prices before you buy",
     template: "%s · PricePilot",
@@ -54,12 +59,18 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           Skip to content
         </a>
-        <SiteHeader />
-        <main id="main" tabIndex={-1} className="flex-1 outline-none">
-          {children}
-        </main>
-        <SiteFooter />
-        <Toaster />
+        <Providers>
+          <SiteHeader />
+          <main id="main" tabIndex={-1} className="flex-1 outline-none">
+            {children}
+          </main>
+          <SiteFooter />
+          {/* usePathname may suspend on dynamic routes; the tray is non-essential. */}
+          <Suspense fallback={null}>
+            <CompareTray />
+          </Suspense>
+          <Toaster />
+        </Providers>
       </body>
     </html>
   );

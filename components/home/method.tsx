@@ -5,7 +5,7 @@ const principles = [
   },
   {
     title: "Context before urgency",
-    body: "Each price is shown against its 12-week average and range, so a “sale” that matches last month’s price reads as typical.",
+    body: "Each price is shown against its recent weekly average and range, so a “sale” that matches last month’s price reads as typical.",
   },
   {
     title: "A list that waits with you",
@@ -17,7 +17,7 @@ export function Method() {
   return (
     <section aria-labelledby="method-title" className="page-container py-12">
       <div className="rounded-xl bg-ink px-6 py-12 text-ink-inverse sm:px-10 md:py-16">
-        <p className="eyebrow text-ink-inverse/60">05 — How it reads a price</p>
+        <p className="eyebrow text-ink-inverse/60">06 — How it reads a price</p>
         <h2
           id="method-title"
           className="mt-4 max-w-2xl font-display text-3xl tracking-tight text-balance md:text-4xl"

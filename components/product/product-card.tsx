@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import type { ProductWithInsight } from "@/lib/catalog/queries";
+import type { ProductWithInsight } from "@/lib/catalog/types";
 import { cn } from "@/lib/utils";
 
 import { Price, PriceDelta } from "./price";
@@ -55,7 +55,7 @@ export function ProductCard({
         <div className="mt-auto pt-3.5">
           <div className="flex flex-wrap items-end justify-between gap-x-2 gap-y-1.5 border-t border-line pt-3">
             <Price amount={insight.best.total} compareAt={product.listPrice} />
-            <PriceDelta ratio={insight.vsAverage} />
+            {insight.history && <PriceDelta ratio={insight.history.vsAverage} />}
           </div>
           <p className="mt-1 text-xs text-ink-muted">
             Best at {insight.best.store.name}

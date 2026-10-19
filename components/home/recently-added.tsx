@@ -1,22 +1,24 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { getCategory, sortCatalog, type ProductWithInsight } from "@/lib/catalog/queries";
+import { productsHref } from "@/lib/catalog/query";
+import { categoryLabels } from "@/lib/catalog/schema";
+import type { ProductWithInsight } from "@/lib/catalog/types";
 import { formatPrice, formatShortDate } from "@/lib/format";
 
 import { SectionHeader } from "./section-header";
 
 /** An index-style list: a deliberate change of rhythm after the card grid. */
-export function RecentlyAdded({ catalog }: { catalog: ProductWithInsight[] }) {
-  const items = sortCatalog(catalog, "newest").slice(0, 5);
+export function RecentlyAdded({ items }: { items: ProductWithInsight[] }) {
+  if (items.length === 0) return null;
 
   return (
     <section aria-labelledby="recent-title" className="page-container py-12">
       <SectionHeader
         id="recent-title"
-        index="04 — New in the catalog"
+        index="05 — New in the catalog"
         title="Recently added"
-        action={{ href: "/products?sort=newest", label: "See everything new" }}
+        action={{ href: productsHref({ sort: "newest" }), label: "See everything new" }}
       />
       <ol className="mt-6">
         {items.map(({ product, insight }, i) => (
@@ -37,9 +39,7 @@ export function RecentlyAdded({ catalog }: { catalog: ProductWithInsight[] }) {
                 </span>
                 <span className="block truncate text-xs text-ink-muted">{product.brand}</span>
               </span>
-              <span className="hidden text-sm text-ink-muted sm:block">
-                {getCategory(product.category)?.name}
-              </span>
+              <span className="hidden text-sm text-ink-muted sm:block">{categoryLabels[product.category]}</span>
               <span className="hidden text-xs text-ink-subtle tabular-nums sm:block">
                 <span className="sr-only">Added </span>
                 {formatShortDate(product.addedAt)}

@@ -6,14 +6,15 @@ import { PriceDelta } from "@/components/product/price";
 import { PriceHistoryChart } from "@/components/product/price-history-chart";
 import { ProductImage } from "@/components/product/product-image";
 import { Button } from "@/components/ui/button";
-import { getOffersByTotal, getPriceSeries, type ProductWithInsight } from "@/lib/catalog/queries";
+import { getPriceSeries } from "@/lib/catalog/insight";
+import type { ProductWithInsight } from "@/lib/catalog/types";
 import { formatPrice } from "@/lib/format";
 
 import { SectionHeader } from "./section-header";
 
 /** Builds the explanatory sentence from the data so copy can't drift from numbers. */
-function stickerVsTotal({ product, insight }: ProductWithInsight) {
-  const offers = getOffersByTotal(product).filter((o) => o.inStock);
+function stickerVsTotal({ insight }: ProductWithInsight) {
+  const offers = insight.offers.filter((o) => o.inStock);
   if (offers.length === 0) return null;
   const cheapestSticker = offers.reduce((min, o) => (o.price < min.price ? o : min));
   if (cheapestSticker.storeId === insight.best.storeId) return null;
@@ -32,12 +33,13 @@ function stickerVsTotal({ product, insight }: ProductWithInsight) {
 export function ComparisonPreview({ item }: { item: ProductWithInsight }) {
   const { product, insight } = item;
   const insightCopy = stickerVsTotal(item);
+  const series = getPriceSeries(product);
 
   return (
     <section aria-labelledby="compare-title" className="page-container py-12">
       <SectionHeader
         id="compare-title"
-        index="03 — Comparison"
+        index="04 — Comparison"
         title={
           <>
             The cheapest sticker isn&rsquo;t always <em>the cheapest price</em>
@@ -71,14 +73,16 @@ export function ComparisonPreview({ item }: { item: ProductWithInsight }) {
         </div>
 
         <div className="rounded-xl border border-line bg-surface p-5 shadow-sm sm:p-6">
-          <OfferTable product={product} />
-          <div className="mt-6 border-t border-line pt-5">
-            <div className="mb-3 flex items-center justify-between gap-3">
-              <h3 className="text-sm font-medium text-ink">12-week price history</h3>
-              <PriceDelta ratio={insight.vsAverage} />
+          <OfferTable item={item} />
+          {series && insight.history && (
+            <div className="mt-6 border-t border-line pt-5">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <h3 className="text-sm font-medium text-ink">{series.length}-week price history</h3>
+                <PriceDelta ratio={insight.history.vsAverage} />
+              </div>
+              <PriceHistoryChart series={series} />
             </div>
-            <PriceHistoryChart series={getPriceSeries(product)} />
-          </div>
+          )}
         </div>
       </div>
     </section>

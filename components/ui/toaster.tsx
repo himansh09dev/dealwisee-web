@@ -11,7 +11,10 @@ export { toast } from "sonner";
 export function Toaster() {
   return (
     <Sonner
-      position="bottom-center"
+      position="top-center"
+      // Below the sticky header; the bottom edge belongs to the compare tray.
+      offset={{ top: 76 }}
+      mobileOffset={{ top: 72 }}
       theme="system"
       duration={6000}
       toastOptions={{

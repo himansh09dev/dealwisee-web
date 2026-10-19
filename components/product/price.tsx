@@ -39,7 +39,8 @@ export function Price({ amount, compareAt, size = "md", className }: PriceProps)
 const FLAT = 0.01;
 
 /**
- * Today's best price relative to the 12-week average. Colour is never the
+ * Today's best price relative to its recent (weekly) average. Only render
+ * this when the product has price history. Colour is never the
  * only cue: direction is also carried by the icon and the visible sign.
  */
 export function PriceDelta({ ratio, className }: { ratio: number; className?: string }) {
@@ -47,8 +48,8 @@ export function PriceDelta({ ratio, className }: { ratio: number; className?: st
   const Icon = tone === "signal" ? ArrowDownRight : tone === "rise" ? ArrowUpRight : Minus;
   const description =
     tone === "neutral"
-      ? "About the same as the 12-week average"
-      : `${formatDelta(ratio)} versus the 12-week average`;
+      ? "About the same as its recent average price"
+      : `${formatDelta(ratio)} versus its recent average price`;
 
   return (
     <Badge tone={tone} className={className} title={description}>

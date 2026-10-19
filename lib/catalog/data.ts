@@ -1,23 +1,14 @@
+import { categoryList } from "./schema";
 import type { Category, Product, Store } from "./types";
 
 /*
- * SAMPLE DATA for the Phase 1 visual prototype.
+ * MOCK / SEED DATA — used until the Express API exists.
  * Products and photography are real; stores are fictional and every price,
  * offer and history point is illustrative. This module is replaced by the
  * REST API in a later phase — keep it free of UI concerns.
  */
 
-export const categories: Category[] = [
-  { id: "audio", name: "Audio" },
-  { id: "phones", name: "Phones" },
-  { id: "computing", name: "Computing" },
-  { id: "gaming", name: "Gaming" },
-  { id: "cameras", name: "Cameras" },
-  { id: "wearables", name: "Wearables" },
-  { id: "footwear", name: "Footwear" },
-  { id: "home", name: "Home & Kitchen" },
-  { id: "accessories", name: "Accessories" },
-];
+export const categories: Category[] = categoryList;
 
 export const stores: Store[] = [
   { id: "northline", name: "Northline" },
@@ -43,6 +34,15 @@ export const products: Product[] = [
     },
     listPrice: 34999,
     addedAt: "2026-10-16",
+    specs: [
+      { label: "Type", value: "Over-ear, wireless" },
+      { label: "Noise cancelling", value: "Adaptive ANC" },
+      { label: "Battery", value: "Up to 30 h (ANC on)" },
+      { label: "Weight", value: "254 g" },
+      { label: "Connectivity", value: "Bluetooth 5.0, 3.5 mm" },
+      { label: "Codecs", value: "SBC, AAC, LDAC" },
+      { label: "Charging", value: "USB-C" },
+    ],
     offers: [
       { storeId: "northline", price: 24800, shipping: 0, inStock: true },
       { storeId: "parcel", price: 24499, shipping: 900, inStock: true },
@@ -64,6 +64,14 @@ export const products: Product[] = [
     },
     listPrice: 12999,
     addedAt: "2026-09-22",
+    specs: [
+      { label: "Type", value: "Portable speaker" },
+      { label: "Battery", value: "Up to 12 h" },
+      { label: "Water resistance", value: "IPX7" },
+      { label: "Weight", value: "540 g" },
+      { label: "Connectivity", value: "Bluetooth 4.2" },
+      { label: "Charging", value: "USB-C" },
+    ],
     offers: [
       { storeId: "voltmart", price: 8999, shipping: 0, inStock: true },
       { storeId: "parcel", price: 9499, shipping: 0, inStock: true },
@@ -84,6 +92,16 @@ export const products: Product[] = [
     },
     listPrice: 79999,
     addedAt: "2026-10-02",
+    specs: [
+      { label: "Display", value: '6.2" AMOLED, 120 Hz' },
+      { label: "Storage", value: "128 GB" },
+      { label: "Memory", value: "8 GB" },
+      { label: "Battery", value: "4,000 mAh" },
+      { label: "Weight", value: "169 g" },
+      { label: "Water resistance", value: "IP68" },
+      { label: "Connectivity", value: "5G, Wi-Fi 6, Bluetooth 5.0" },
+      { label: "Charging", value: "USB-C" },
+    ],
     offers: [
       { storeId: "northline", price: 54900, shipping: 0, inStock: true },
       { storeId: "voltmart", price: 56999, shipping: 0, inStock: true },
@@ -104,6 +122,16 @@ export const products: Product[] = [
     },
     listPrice: 59900,
     addedAt: "2026-09-08",
+    specs: [
+      { label: "Display", value: '6.1" OLED, 60 Hz' },
+      { label: "Storage", value: "64 GB" },
+      { label: "Processor", value: "A14 Bionic" },
+      { label: "Battery", value: "Up to 17 h video" },
+      { label: "Weight", value: "164 g" },
+      { label: "Water resistance", value: "IP68" },
+      { label: "Connectivity", value: "5G, Wi-Fi 6, Bluetooth 5.0" },
+      { label: "Charging", value: "Lightning" },
+    ],
     offers: [
       { storeId: "northline", price: 47900, shipping: 0, inStock: true },
       { storeId: "voltmart", price: 48900, shipping: 0, inStock: true },
@@ -124,6 +152,13 @@ export const products: Product[] = [
     },
     listPrice: 49999,
     addedAt: "2026-10-12",
+    specs: [
+      { label: "Storage", value: "825 GB SSD" },
+      { label: "Output", value: "Up to 4K 120 Hz" },
+      { label: "Disc drive", value: "Ultra HD Blu-ray" },
+      { label: "Weight", value: "4.5 kg" },
+      { label: "Connectivity", value: "Wi-Fi 6, Bluetooth 5.1, Ethernet" },
+    ],
     offers: [
       { storeId: "voltmart", price: 44999, shipping: 0, inStock: true },
       { storeId: "parcel", price: 45999, shipping: 0, inStock: true },
@@ -145,6 +180,14 @@ export const products: Product[] = [
     },
     listPrice: 9999,
     addedAt: "2026-10-18",
+    specs: [
+      { label: "Film", value: "i-Type, 600" },
+      { label: "Lens", value: "106 mm fixed focus" },
+      { label: "Battery", value: "Rechargeable, about 60 days" },
+      { label: "Weight", value: "460 g" },
+      { label: "Self-timer", value: "Yes" },
+      { label: "Charging", value: "Micro-USB" },
+    ],
     offers: [
       { storeId: "northline", price: 8999, shipping: 0, inStock: true },
       { storeId: "parcel", price: 8299, shipping: 999, inStock: true },
@@ -165,6 +208,15 @@ export const products: Product[] = [
     },
     listPrice: 39900,
     addedAt: "2026-09-30",
+    specs: [
+      { label: "Display", value: "Always-on Retina" },
+      { label: "Case size", value: "44 mm aluminium" },
+      { label: "Battery", value: "Up to 18 h" },
+      { label: "Weight", value: "36.5 g" },
+      { label: "Water resistance", value: "50 m" },
+      { label: "Sensors", value: "Blood oxygen, ECG, heart rate" },
+      { label: "Connectivity", value: "GPS, Wi-Fi, Bluetooth 5.0" },
+    ],
     offers: [
       { storeId: "northline", price: 27900, shipping: 0, inStock: true },
       { storeId: "harbor", price: 26900, shipping: 0, inStock: false },
@@ -185,6 +237,16 @@ export const products: Product[] = [
     },
     listPrice: 129900,
     addedAt: "2026-10-09",
+    specs: [
+      { label: "Display", value: '13.3" Retina, 2560 × 1600' },
+      { label: "Processor", value: "Apple M2" },
+      { label: "Memory", value: "8 GB" },
+      { label: "Storage", value: "256 GB SSD" },
+      { label: "Battery", value: "Up to 20 h video" },
+      { label: "Weight", value: "1.4 kg" },
+      { label: "Connectivity", value: "Wi-Fi 6, Bluetooth 5.0" },
+      { label: "Ports", value: "2 × Thunderbolt / USB 4" },
+    ],
     offers: [
       { storeId: "northline", price: 109900, shipping: 0, inStock: true },
       { storeId: "parcel", price: 107900, shipping: 2500, inStock: true },
@@ -208,6 +270,12 @@ export const products: Product[] = [
     },
     listPrice: 14000,
     addedAt: "2026-10-05",
+    specs: [
+      { label: "Upper", value: "Mesh and synthetic" },
+      { label: "Cushioning", value: "Visible Max Air unit" },
+      { label: "Closure", value: "Lace-up" },
+      { label: "Use", value: "Lifestyle" },
+    ],
     offers: [
       { storeId: "parcel", price: 11200, shipping: 600, inStock: true },
       { storeId: "northline", price: 12600, shipping: 0, inStock: true },
@@ -228,6 +296,12 @@ export const products: Product[] = [
     },
     listPrice: 12000,
     addedAt: "2026-09-14",
+    specs: [
+      { label: "Upper", value: "Flyknit" },
+      { label: "Cushioning", value: "Foam midsole" },
+      { label: "Closure", value: "Lace-up" },
+      { label: "Use", value: "Road running" },
+    ],
     offers: [
       { storeId: "northline", price: 8400, shipping: 0, inStock: true },
       { storeId: "parcel", price: 7900, shipping: 600, inStock: true },
@@ -248,6 +322,12 @@ export const products: Product[] = [
     },
     listPrice: 14995,
     addedAt: "2026-10-14",
+    specs: [
+      { label: "Burrs", value: "40 mm conical steel" },
+      { label: "Grind settings", value: "40" },
+      { label: "Hopper capacity", value: "227 g" },
+      { label: "Motor", value: "DC, gear reduced" },
+    ],
     offers: [
       { storeId: "harbor", price: 13999, shipping: 0, inStock: true },
       { storeId: "kettle", price: 14995, shipping: 0, inStock: true },
@@ -268,6 +348,12 @@ export const products: Product[] = [
     },
     listPrice: 9999,
     addedAt: "2026-09-26",
+    specs: [
+      { label: "Height", value: "181 cm" },
+      { label: "Material", value: "Steel" },
+      { label: "Bulb", value: "E26, sold separately" },
+      { label: "Adjustable", value: "Tilting shade" },
+    ],
     offers: [
       { storeId: "kettle", price: 10999, shipping: 0, inStock: true },
       { storeId: "harbor", price: 11499, shipping: 0, inStock: true },
@@ -288,6 +374,13 @@ export const products: Product[] = [
     },
     listPrice: 16300,
     addedAt: "2026-10-07",
+    specs: [
+      { label: "Frame", value: "Acetate" },
+      { label: "Lens", value: "G-15 green, non-polarised" },
+      { label: "Lens width", value: "50 mm" },
+      { label: "Bridge", value: "22 mm" },
+      { label: "UV protection", value: "100% UVA/UVB" },
+    ],
     offers: [
       { storeId: "northline", price: 13040, shipping: 0, inStock: true },
       { storeId: "parcel", price: 12900, shipping: 700, inStock: true },

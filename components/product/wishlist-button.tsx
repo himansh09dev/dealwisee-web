@@ -4,7 +4,7 @@ import { Heart } from "lucide-react";
 
 import { toast } from "@/components/ui/toaster";
 import { cn } from "@/lib/utils";
-import { toggleWishlist, useWishlist } from "@/lib/wishlist";
+import { useWishlist, wishlist } from "@/lib/wishlist";
 
 type WishlistButtonProps = {
   slug: string;
@@ -22,11 +22,20 @@ export function WishlistButton({
   const saved = useWishlist().includes(slug);
 
   function onToggle() {
-    const nowSaved = toggleWishlist(slug);
-    toast(nowSaved ? "Saved to your wishlist" : "Removed from your wishlist", {
-      description: nowSaved ? "Stored on this device until accounts arrive." : productName,
-      action: { label: "Undo", onClick: () => toggleWishlist(slug) },
-    });
+    if (saved) {
+      const index = wishlist.indexOf(slug);
+      wishlist.remove(slug);
+      toast("Removed from your wishlist", {
+        description: productName,
+        action: { label: "Undo", onClick: () => wishlist.restore(slug, index) },
+      });
+    } else {
+      wishlist.add(slug);
+      toast("Saved to your wishlist", {
+        description: "Stored on this device until accounts arrive.",
+        action: { label: "Undo", onClick: () => wishlist.remove(slug) },
+      });
+    }
   }
 
   return (
@@ -36,7 +45,7 @@ export function WishlistButton({
       aria-pressed={saved}
       aria-label={`Save ${productName} to wishlist`}
       className={cn(
-        "focus-ring group/heart grid cursor-pointer place-items-center rounded-full transition-[background-color,color,transform] duration-(--duration-fast) active:scale-90",
+        "focus-ring group/heart grid shrink-0 cursor-pointer place-items-center rounded-full transition-[background-color,color,transform] duration-(--duration-fast) active:scale-90",
         variant === "overlay"
           ? "size-9 bg-surface/85 text-ink shadow-sm backdrop-blur-sm hover:bg-surface"
           : "size-10 border border-line-strong bg-surface text-ink hover:bg-paper",

@@ -1,30 +1,30 @@
+import Link from "next/link";
+
 import { ProductCard } from "@/components/product/product-card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { sortCatalog, type ProductSort, type ProductWithInsight } from "@/lib/catalog/queries";
+import { productsHref, type ProductSort } from "@/lib/catalog/query";
+import type { ProductWithInsight } from "@/lib/catalog/types";
 
 import { SectionHeader } from "./section-header";
 
-const views: { value: ProductSort; label: string }[] = [
-  { value: "drops", label: "Biggest drops" },
-  { value: "price", label: "Lowest price" },
-  { value: "newest", label: "Newest" },
-];
-
-const LIMIT = 8;
+export type TrendingView = { value: ProductSort; label: string; items: ProductWithInsight[] };
 
 /**
- * Sorting happens on the server; Radix Tabs only switches which pre-rendered
- * grid is visible, so no product data is shipped to the client for this.
+ * Lists are fetched and sorted on the server; Radix Tabs only switches which
+ * pre-rendered grid is visible, so no product data ships to the client here.
  */
-export function TrendingProducts({ catalog }: { catalog: ProductWithInsight[] }) {
+export function TrendingProducts({ views }: { views: TrendingView[] }) {
+  const [first] = views;
+  if (!first || first.items.length === 0) return null;
+
   return (
     <section aria-labelledby="trending-title" className="page-container py-12">
-      <Tabs defaultValue="drops">
+      <Tabs defaultValue={first.value}>
         <SectionHeader
           id="trending-title"
           index="02 — Price watch"
           title="Worth a look this week"
-          description="Ranked by today's best total against each product's 12-week average."
+          description="Ranked by today's best total against each product's recent average."
           aside={
             <TabsList aria-label="Sort products" className="self-start md:self-auto">
               {views.map((v) => (
@@ -36,16 +36,22 @@ export function TrendingProducts({ catalog }: { catalog: ProductWithInsight[] })
           }
         />
         {views.map((v) => (
-          <TabsContent key={v.value} value={v.value} className="mt-8 focus-ring rounded-md">
+          <TabsContent key={v.value} value={v.value} className="focus-ring mt-8 rounded-md">
             <ul className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 lg:grid-cols-4 lg:gap-x-6">
-              {sortCatalog(catalog, v.value)
-                .slice(0, LIMIT)
-                .map((item) => (
-                  <li key={item.product.slug} className="flex">
-                    <ProductCard {...item} className="w-full" />
-                  </li>
-                ))}
+              {v.items.map((item) => (
+                <li key={item.product.slug} className="flex">
+                  <ProductCard {...item} className="w-full" />
+                </li>
+              ))}
             </ul>
+            <p className="mt-10 text-center">
+              <Link
+                href={productsHref({ sort: v.value })}
+                className="focus-ring rounded-xs text-sm font-medium text-ink underline decoration-line-strong underline-offset-4 hover:decoration-ink"
+              >
+                See all, sorted by {v.label.toLowerCase()}
+              </Link>
+            </p>
           </TabsContent>
         ))}
       </Tabs>
