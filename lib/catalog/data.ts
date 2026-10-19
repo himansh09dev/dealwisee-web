@@ -1,0 +1,298 @@
+import type { Category, Product, Store } from "./types";
+
+/*
+ * SAMPLE DATA for the Phase 1 visual prototype.
+ * Products and photography are real; stores are fictional and every price,
+ * offer and history point is illustrative. This module is replaced by the
+ * REST API in a later phase — keep it free of UI concerns.
+ */
+
+export const categories: Category[] = [
+  { id: "audio", name: "Audio" },
+  { id: "phones", name: "Phones" },
+  { id: "computing", name: "Computing" },
+  { id: "gaming", name: "Gaming" },
+  { id: "cameras", name: "Cameras" },
+  { id: "wearables", name: "Wearables" },
+  { id: "footwear", name: "Footwear" },
+  { id: "home", name: "Home & Kitchen" },
+  { id: "accessories", name: "Accessories" },
+];
+
+export const stores: Store[] = [
+  { id: "northline", name: "Northline" },
+  { id: "parcel", name: "Parcel & Co." },
+  { id: "voltmart", name: "Voltmart" },
+  { id: "harbor", name: "Harbor Supply" },
+  { id: "kettle", name: "Kettle & Crate" },
+];
+
+const unsplash = (id: string) => `https://unsplash.com/photos/${id}`;
+
+export const products: Product[] = [
+  {
+    slug: "sony-wh-1000xm4",
+    name: "WH-1000XM4 Wireless Noise Cancelling Headphones",
+    brand: "Sony",
+    category: "audio",
+    summary: "Adaptive ANC · 30 h battery · Multipoint",
+    image: {
+      src: "/images/products/sony-wh-1000xm4.jpg",
+      alt: "Black Sony over-ear headphones standing upright on a warm beige background",
+      sourceUrl: unsplash("photo-1618366712010-f4ae9c647dcb"),
+    },
+    listPrice: 34999,
+    addedAt: "2026-10-16",
+    offers: [
+      { storeId: "northline", price: 24800, shipping: 0, inStock: true },
+      { storeId: "parcel", price: 24499, shipping: 900, inStock: true },
+      { storeId: "voltmart", price: 25999, shipping: 0, inStock: true },
+      { storeId: "harbor", price: 27999, shipping: 0, inStock: false },
+    ],
+    history: [29999, 29999, 28999, 27999, 27999, 29999, 27499, 26999, 27999, 26999, 25999],
+  },
+  {
+    slug: "jbl-flip-5",
+    name: "Flip 5 Portable Waterproof Speaker",
+    brand: "JBL",
+    category: "audio",
+    summary: "IPX7 · 12 h playtime · PartyBoost",
+    image: {
+      src: "/images/products/jbl-flip-5.jpg",
+      alt: "Black JBL cylindrical speaker lying on a wooden surface",
+      sourceUrl: unsplash("photo-1608043152269-423dbba4e7e1"),
+    },
+    listPrice: 12999,
+    addedAt: "2026-09-22",
+    offers: [
+      { storeId: "voltmart", price: 8999, shipping: 0, inStock: true },
+      { storeId: "parcel", price: 9499, shipping: 0, inStock: true },
+      { storeId: "northline", price: 9999, shipping: 0, inStock: true },
+    ],
+    history: [11999, 11999, 10999, 10999, 11499, 9999, 9999, 10499, 9999, 9499, 9499],
+  },
+  {
+    slug: "samsung-galaxy-s21",
+    name: "Galaxy S21 5G, 128 GB, Phantom Violet",
+    brand: "Samsung",
+    category: "phones",
+    summary: '6.2" 120 Hz · Triple camera · Unlocked',
+    image: {
+      src: "/images/products/samsung-galaxy-s21.jpg",
+      alt: "Violet Samsung Galaxy S21 shown from the back next to its retail box",
+      sourceUrl: unsplash("photo-1610945265064-0e34e5519bbf"),
+    },
+    listPrice: 79999,
+    addedAt: "2026-10-02",
+    offers: [
+      { storeId: "northline", price: 54900, shipping: 0, inStock: true },
+      { storeId: "voltmart", price: 56999, shipping: 0, inStock: true },
+      { storeId: "harbor", price: 52999, shipping: 1500, inStock: true },
+    ],
+    history: [64999, 62999, 62999, 59999, 59999, 58999, 57999, 57999, 56999, 55999, 54900],
+  },
+  {
+    slug: "apple-iphone-12",
+    name: "iPhone 12, 64 GB",
+    brand: "Apple",
+    category: "phones",
+    summary: '6.1" OLED · A14 Bionic · 5G',
+    image: {
+      src: "/images/products/apple-iphone-12.jpg",
+      alt: "iPhone 12 lying on a wooden table beside a pair of white earbuds",
+      sourceUrl: unsplash("photo-1592899677977-9c10ca588bbd"),
+    },
+    listPrice: 59900,
+    addedAt: "2026-09-08",
+    offers: [
+      { storeId: "northline", price: 47900, shipping: 0, inStock: true },
+      { storeId: "voltmart", price: 48900, shipping: 0, inStock: true },
+      { storeId: "parcel", price: 46900, shipping: 1200, inStock: true },
+    ],
+    history: [49900, 49900, 48900, 48900, 48900, 49900, 48900, 47900, 48900, 48900, 47900],
+  },
+  {
+    slug: "playstation-5",
+    name: "PlayStation 5 Console",
+    brand: "Sony",
+    category: "gaming",
+    summary: "825 GB SSD · 4K 120 Hz · DualSense",
+    image: {
+      src: "/images/products/playstation-5.jpg",
+      alt: "Close-up of the white PlayStation 5 console panel with the PlayStation logo",
+      sourceUrl: unsplash("photo-1606813907291-d86efa9b94db"),
+    },
+    listPrice: 49999,
+    addedAt: "2026-10-12",
+    offers: [
+      { storeId: "voltmart", price: 44999, shipping: 0, inStock: true },
+      { storeId: "parcel", price: 45999, shipping: 0, inStock: true },
+      { storeId: "harbor", price: 46999, shipping: 0, inStock: false },
+      { storeId: "northline", price: 47999, shipping: 0, inStock: true },
+    ],
+    history: [49999, 49999, 49999, 47999, 47999, 49999, 49999, 47999, 46999, 49999, 47999],
+  },
+  {
+    slug: "polaroid-onestep-2",
+    name: "OneStep 2 i-Type Instant Camera",
+    brand: "Polaroid",
+    category: "cameras",
+    summary: "Viewfinder · Self-timer · 60-day battery",
+    image: {
+      src: "/images/products/polaroid-onestep-2.jpg",
+      alt: "White Polaroid OneStep 2 instant camera on a light grey surface",
+      sourceUrl: unsplash("photo-1526170375885-4d8ecf77b99f"),
+    },
+    listPrice: 9999,
+    addedAt: "2026-10-18",
+    offers: [
+      { storeId: "northline", price: 8999, shipping: 0, inStock: true },
+      { storeId: "parcel", price: 8299, shipping: 999, inStock: true },
+      { storeId: "voltmart", price: 9499, shipping: 0, inStock: true },
+    ],
+    history: [9999, 9999, 9499, 9499, 9999, 9999, 9499, 9299, 9499, 9299, 9299],
+  },
+  {
+    slug: "apple-watch-series-6",
+    name: "Watch Series 6 GPS, 44 mm Aluminium",
+    brand: "Apple",
+    category: "wearables",
+    summary: "Always-on Retina · Blood oxygen · Water resistant",
+    image: {
+      src: "/images/products/apple-watch-series-6.jpg",
+      alt: "Apple Watch with a black sport band photographed from above on white",
+      sourceUrl: unsplash("photo-1546868871-7041f2a55e12"),
+    },
+    listPrice: 39900,
+    addedAt: "2026-09-30",
+    offers: [
+      { storeId: "northline", price: 27900, shipping: 0, inStock: true },
+      { storeId: "harbor", price: 26900, shipping: 0, inStock: false },
+      { storeId: "voltmart", price: 28900, shipping: 0, inStock: true },
+    ],
+    history: [32900, 31900, 31900, 29900, 29900, 29900, 28900, 28900, 27900, 28900, 28900],
+  },
+  {
+    slug: "macbook-pro-13",
+    name: 'MacBook Pro 13", M2, 8 GB / 256 GB',
+    brand: "Apple",
+    category: "computing",
+    summary: "Apple M2 · 20 h battery · Touch Bar",
+    image: {
+      src: "/images/products/macbook-pro-13.jpg",
+      alt: "Open MacBook Pro keyboard lit by purple and blue light",
+      sourceUrl: unsplash("photo-1517336714731-489689fd1ca8"),
+    },
+    listPrice: 129900,
+    addedAt: "2026-10-09",
+    offers: [
+      { storeId: "northline", price: 109900, shipping: 0, inStock: true },
+      { storeId: "parcel", price: 107900, shipping: 2500, inStock: true },
+      { storeId: "voltmart", price: 112900, shipping: 0, inStock: true },
+      { storeId: "harbor", price: 114900, shipping: 0, inStock: true },
+    ],
+    history: [
+      119900, 119900, 117900, 114900, 114900, 112900, 112900, 114900, 112900, 109900, 109900,
+    ],
+  },
+  {
+    slug: "nike-air-max-1",
+    name: "Air Max 1 Ultra Essential",
+    brand: "Nike",
+    category: "footwear",
+    summary: "Visible Air cushioning · Mesh upper",
+    image: {
+      src: "/images/products/nike-air-max-1.jpg",
+      alt: "White and bright orange Nike Air Max 1 sneaker suspended against a pale grey backdrop",
+      sourceUrl: unsplash("photo-1600185365483-26d7a4cc7519"),
+    },
+    listPrice: 14000,
+    addedAt: "2026-10-05",
+    offers: [
+      { storeId: "parcel", price: 11200, shipping: 600, inStock: true },
+      { storeId: "northline", price: 12600, shipping: 0, inStock: true },
+      { storeId: "harbor", price: 13000, shipping: 0, inStock: true },
+    ],
+    history: [14000, 14000, 14000, 13000, 13000, 12600, 12600, 12600, 14000, 12600, 12600],
+  },
+  {
+    slug: "nike-free-rn-flyknit",
+    name: "Free RN Flyknit Running Shoe",
+    brand: "Nike",
+    category: "footwear",
+    summary: "Flyknit upper · Flexible sole · Neutral",
+    image: {
+      src: "/images/products/nike-free-rn-flyknit.jpg",
+      alt: "Red Nike Free RN Flyknit running shoe on a red background",
+      sourceUrl: unsplash("photo-1542291026-7eec264c27ff"),
+    },
+    listPrice: 12000,
+    addedAt: "2026-09-14",
+    offers: [
+      { storeId: "northline", price: 8400, shipping: 0, inStock: true },
+      { storeId: "parcel", price: 7900, shipping: 600, inStock: true },
+      { storeId: "harbor", price: 8999, shipping: 0, inStock: true },
+    ],
+    history: [12000, 10800, 10800, 9600, 9600, 9600, 9000, 9000, 9000, 8999, 8999],
+  },
+  {
+    slug: "baratza-encore",
+    name: "Encore Conical Burr Coffee Grinder",
+    brand: "Baratza",
+    category: "home",
+    summary: "40 grind settings · 40 mm burrs",
+    image: {
+      src: "/images/products/baratza-encore.jpg",
+      alt: "Baratza Encore grinder on a granite kitchen counter beside a filter coffee brewer",
+      sourceUrl: unsplash("photo-1570222094114-d054a817e56b"),
+    },
+    listPrice: 14995,
+    addedAt: "2026-10-14",
+    offers: [
+      { storeId: "harbor", price: 13999, shipping: 0, inStock: true },
+      { storeId: "kettle", price: 14995, shipping: 0, inStock: true },
+      { storeId: "northline", price: 14995, shipping: 0, inStock: true },
+    ],
+    history: [14995, 14995, 14995, 14995, 13999, 14995, 14995, 14995, 14995, 14995, 14995],
+  },
+  {
+    slug: "ikea-hektar-floor-lamp",
+    name: "HEKTAR Floor Lamp, Dark Grey",
+    brand: "IKEA",
+    category: "home",
+    summary: "Adjustable shade · Steel · E26 bulb",
+    image: {
+      src: "/images/products/ikea-hektar-floor-lamp.jpg",
+      alt: "Dark grey IKEA HEKTAR floor lamp against a white wall",
+      sourceUrl: unsplash("photo-1507473885765-e6ed057f782c"),
+    },
+    listPrice: 9999,
+    addedAt: "2026-09-26",
+    offers: [
+      { storeId: "kettle", price: 10999, shipping: 0, inStock: true },
+      { storeId: "harbor", price: 11499, shipping: 0, inStock: true },
+      { storeId: "northline", price: 11999, shipping: 0, inStock: true },
+    ],
+    history: [9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 10499, 10499, 10499],
+  },
+  {
+    slug: "ray-ban-wayfarer",
+    name: "Original Wayfarer Classic Sunglasses",
+    brand: "Ray-Ban",
+    category: "accessories",
+    summary: "Acetate frame · G-15 lenses · 50 mm",
+    image: {
+      src: "/images/products/ray-ban-wayfarer.jpg",
+      alt: "Black Ray-Ban Wayfarer sunglasses on a white surface",
+      sourceUrl: unsplash("photo-1572635196237-14b3f281503f"),
+    },
+    listPrice: 16300,
+    addedAt: "2026-10-07",
+    offers: [
+      { storeId: "northline", price: 13040, shipping: 0, inStock: true },
+      { storeId: "parcel", price: 12900, shipping: 700, inStock: true },
+      { storeId: "voltmart", price: 14670, shipping: 0, inStock: true },
+    ],
+    history: [16300, 16300, 16300, 16300, 14670, 14670, 16300, 16300, 14670, 14670, 13040],
+  },
+];

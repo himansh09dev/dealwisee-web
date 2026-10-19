@@ -1,26 +1,271 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/*
+ * PricePilot design tokens.
+ * Raw values live on :root (light) and are swapped for dark mode; Tailwind
+ * utilities read them through `@theme inline`, so `bg-paper`, `text-ink`,
+ * `border-line` etc. follow the active scheme automatically.
+ * Rationale for each decision lives in docs/design-system.md.
+ */
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+:root {
+  /* Surfaces — warm paper, never pure white page backgrounds */
+  --paper: #f5f2eb;
+  --surface: #fffdf9;
+  --sunken: #ece8df;
+
+  /* Ink */
+  --ink: #1a1813;
+  --ink-muted: #5c574c;
+  --ink-subtle: #736d61;
+  --ink-inverse: #f5f2eb;
+
+  /* Lines */
+  --line: #e2ddd2;
+  --line-strong: #cfc8ba;
+  --line-control: #948e80; /* ≥3:1 on --surface for input boundaries */
+
+  /* Signal: green is reserved for money saved / best price */
+  --signal: #0a6b4c;
+  --signal-hover: #085a40;
+  --signal-soft: #e1eee6;
+  --signal-ink: #08553c;
+
+  /* Price went up / caution */
+  --rise: #9a4310;
+  --rise-soft: #f7e8dc;
+
+  --danger: #b42318;
+  --danger-soft: #fbe9e7;
+
+  --focus: #0a6b4c;
+  --overlay: rgb(26 24 19 / 0.42);
+
+  --shadow-color: 40 30 10;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --paper: #12120f;
+    --surface: #1a1a16;
+    --sunken: #22211c;
+
+    --ink: #f1eee6;
+    --ink-muted: #a6a194;
+    --ink-subtle: #8a8579;
+    --ink-inverse: #12120f;
+
+    --line: #2b2a25;
+    --line-strong: #3b3a33;
+    --line-control: #716c5f;
+
+    --signal: #4cc495;
+    --signal-hover: #6dd3aa;
+    --signal-soft: #15291f;
+    --signal-ink: #86ddb8;
+
+    --rise: #f0a673;
+    --rise-soft: #2b1d12;
+
+    --danger: #f97066;
+    --danger-soft: #2d1513;
+
+    --focus: #4cc495;
+    --overlay: rgb(0 0 0 / 0.6);
+
+    --shadow-color: 0 0 0;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@theme inline {
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-sunken: var(--sunken);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-subtle: var(--ink-subtle);
+  --color-ink-inverse: var(--ink-inverse);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-line-control: var(--line-control);
+  --color-signal: var(--signal);
+  --color-signal-hover: var(--signal-hover);
+  --color-signal-soft: var(--signal-soft);
+  --color-signal-ink: var(--signal-ink);
+  --color-rise: var(--rise);
+  --color-rise-soft: var(--rise-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-focus: var(--focus);
+  --color-overlay: var(--overlay);
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-display: var(--font-newsreader), ui-serif, Georgia, serif;
+
+  --shadow-xs: 0 1px 0 rgb(var(--shadow-color) / 0.04);
+  --shadow-sm: 0 1px 2px rgb(var(--shadow-color) / 0.06),
+    0 1px 1px rgb(var(--shadow-color) / 0.04);
+  --shadow-md: 0 6px 16px -4px rgb(var(--shadow-color) / 0.1),
+    0 2px 4px -2px rgb(var(--shadow-color) / 0.06);
+  --shadow-lg: 0 24px 48px -16px rgb(var(--shadow-color) / 0.22),
+    0 6px 12px -6px rgb(var(--shadow-color) / 0.1);
+}
+
+@theme {
+  /* Type scale: size / line-height pairs. Display sizes use the serif. */
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1rem;
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1.125rem;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.375rem;
+  --text-base: 1rem;
+  --text-base--line-height: 1.5rem;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.75rem;
+  --text-xl: 1.375rem;
+  --text-xl--line-height: 1.875rem;
+  --text-2xl: 1.75rem;
+  --text-2xl--line-height: 2.125rem;
+  --text-3xl: 2.25rem;
+  --text-3xl--line-height: 2.5rem;
+  --text-4xl: 3rem;
+  --text-4xl--line-height: 1.05;
+  --text-5xl: 4rem;
+  --text-5xl--line-height: 1;
+
+  --tracking-tightest: -0.035em;
+  --tracking-eyebrow: 0.08em;
+
+  /* Radii: tight and precise; tags are nearly square, cards gently rounded */
+  --radius-xs: 0.25rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1.125rem;
+
+  /* Layout widths */
+  --container-page: 80rem;
+  --container-prose: 40rem;
+
+  /* Motion */
+  --ease-out-soft: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 320ms;
+
+  --animate-fade-in: fade-in var(--duration-base) var(--ease-out-soft);
+  --animate-fade-out: fade-out var(--duration-fast) ease-in;
+  --animate-pop-in: pop-in var(--duration-base) var(--ease-out-soft);
+  --animate-pop-out: pop-out var(--duration-fast) ease-in;
+  --animate-sheet-in: sheet-in var(--duration-slow) var(--ease-out-soft);
+  --animate-sheet-out: sheet-out var(--duration-base) ease-in;
+  --animate-shimmer: shimmer 1.6s linear infinite;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+  @keyframes pop-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px) scale(0.98);
+    }
+  }
+  @keyframes pop-out {
+    to {
+      opacity: 0;
+      transform: scale(0.98);
+    }
+  }
+  @keyframes sheet-in {
+    from {
+      transform: translateX(100%);
+    }
+  }
+  @keyframes sheet-out {
+    to {
+      transform: translateX(100%);
+    }
+  }
+  @keyframes shimmer {
+    from {
+      background-position: 200% 0;
+    }
+    to {
+      background-position: -200% 0;
+    }
+  }
+}
+
+/* One focus treatment everywhere: 2px signal outline, offset from the control. */
+@utility focus-ring {
+  &:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+}
+
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  line-height: var(--text-2xs--line-height);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+}
+
+@utility page-container {
+  margin-inline: auto;
+  width: 100%;
+  max-width: var(--container-page);
+  padding-inline: 1rem;
+  @variant sm {
+    padding-inline: 1.5rem;
+  }
+  @variant lg {
+    padding-inline: 2rem;
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: light dark;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+  }
+
+  ::selection {
+    background: var(--signal-soft);
+    color: var(--signal-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
