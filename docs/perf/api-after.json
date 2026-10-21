@@ -1,0 +1,454 @@
+{
+  "products": 20013,
+  "runs": 25,
+  "results": [
+    {
+      "name": "default (newest)",
+      "medianMs": 4.4,
+      "total": 20013,
+      "dbOps": 6,
+      "ops": [
+        {
+          "command": "count",
+          "plan": "RECORD_STORE_FAST_COUNT",
+          "keysExamined": 0,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "distinct",
+          "plan": "DISTINCT_SCAN { category: 1, createdAt: -1, _id: -1 }",
+          "keysExamined": 9,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "find",
+          "plan": "IXSCAN { createdAt: -1, _id: -1 }",
+          "keysExamined": 12,
+          "docsExamined": 12,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "distinct",
+          "plan": "DISTINCT_SCAN { brand: 1, name: 1, _id: 1 }",
+          "keysExamined": 21,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "aggregate",
+          "plan": "IXSCAN { category: 1, brand: 1, currentPrice: 1 }",
+          "keysExamined": 20013,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 6
+        },
+        {
+          "command": "aggregate",
+          "plan": "IXSCAN { category: 1, brand: 1, currentPrice: 1 }",
+          "keysExamined": 20013,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 6
+        }
+      ]
+    },
+    {
+      "name": "category filter",
+      "medianMs": 4,
+      "total": 2251,
+      "dbOps": 6,
+      "ops": [
+        {
+          "command": "distinct",
+          "plan": "DISTINCT_SCAN { category: 1, createdAt: -1, _id: -1 }",
+          "keysExamined": 9,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "find",
+          "plan": "IXSCAN { category: 1, createdAt: -1, _id: -1 }",
+          "keysExamined": 12,
+          "docsExamined": 12,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "distinct",
+          "plan": "DISTINCT_SCAN { brand: 1, name: 1, _id: 1 }",
+          "keysExamined": 21,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "aggregate",
+          "plan": "COUNT_SCAN { category: 1, createdAt: -1, _id: -1 }",
+          "keysExamined": 2251,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "aggregate",
+          "plan": "IXSCAN { category: 1, brand: 1, currentPrice: 1 }",
+          "keysExamined": 2251,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "aggregate",
+          "plan": "IXSCAN { category: 1, brand: 1, currentPrice: 1 }",
+          "keysExamined": 20013,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 4
+        }
+      ]
+    },
+    {
+      "name": "category + price asc",
+      "medianMs": 3.7,
+      "total": 2251,
+      "dbOps": 6,
+      "ops": [
+        {
+          "command": "distinct",
+          "plan": "DISTINCT_SCAN { category: 1, createdAt: -1, _id: -1 }",
+          "keysExamined": 9,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "distinct",
+          "plan": "DISTINCT_SCAN { brand: 1, name: 1, _id: 1 }",
+          "keysExamined": 21,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "find",
+          "plan": "IXSCAN { category: 1, currentPrice: 1, _id: 1 }",
+          "keysExamined": 12,
+          "docsExamined": 12,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "aggregate",
+          "plan": "COUNT_SCAN { category: 1, createdAt: -1, _id: -1 }",
+          "keysExamined": 2251,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "aggregate",
+          "plan": "IXSCAN { category: 1, brand: 1, currentPrice: 1 }",
+          "keysExamined": 2251,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "aggregate",
+          "plan": "IXSCAN { category: 1, brand: 1, currentPrice: 1 }",
+          "keysExamined": 20013,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 4
+        }
+      ]
+    },
+    {
+      "name": "price range",
+      "medianMs": 1.3,
+      "total": 1563,
+      "dbOps": 6,
+      "ops": [
+        {
+          "command": "distinct",
+          "plan": "DISTINCT_SCAN { category: 1, createdAt: -1, _id: -1 }",
+          "keysExamined": 9,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "find",
+          "plan": "IXSCAN { currentPrice: 1, _id: 1 }",
+          "keysExamined": 12,
+          "docsExamined": 12,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "distinct",
+          "plan": "DISTINCT_SCAN { brand: 1, name: 1, _id: 1 }",
+          "keysExamined": 21,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "aggregate",
+          "plan": "COUNT_SCAN { currentPrice: 1, _id: 1 }",
+          "keysExamined": 1563,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "aggregate",
+          "plan": "IXSCAN { currentPrice: 1, _id: 1 }",
+          "keysExamined": 1563,
+          "docsExamined": 1563,
+          "inMemorySort": false,
+          "ms": 1
+        },
+        {
+          "command": "aggregate",
+          "plan": "IXSCAN { currentPrice: 1, _id: 1 }",
+          "keysExamined": 1563,
+          "docsExamined": 1563,
+          "inMemorySort": false,
+          "ms": 1
+        }
+      ]
+    },
+    {
+      "name": "brand + name sort",
+      "medianMs": 3.8,
+      "total": 1623,
+      "dbOps": 6,
+      "ops": [
+        {
+          "command": "distinct",
+          "plan": "DISTINCT_SCAN { category: 1, createdAt: -1, _id: -1 }",
+          "keysExamined": 9,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "find",
+          "plan": "IXSCAN { brand: 1, name: 1, _id: 1 }",
+          "keysExamined": 12,
+          "docsExamined": 12,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "aggregate",
+          "plan": "COUNT_SCAN { brand: 1, name: 1, _id: 1 }",
+          "keysExamined": 1623,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "distinct",
+          "plan": "DISTINCT_SCAN { brand: 1, name: 1, _id: 1 }",
+          "keysExamined": 21,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "aggregate",
+          "plan": "IXSCAN { brand: 1, name: 1, _id: 1 }",
+          "keysExamined": 1623,
+          "docsExamined": 1623,
+          "inMemorySort": false,
+          "ms": 1
+        },
+        {
+          "command": "aggregate",
+          "plan": "IXSCAN { category: 1, brand: 1, currentPrice: 1 }",
+          "keysExamined": 20013,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 4
+        }
+      ]
+    },
+    {
+      "name": "biggest drops",
+      "medianMs": 3.8,
+      "total": 20013,
+      "dbOps": 6,
+      "ops": [
+        {
+          "command": "count",
+          "plan": "RECORD_STORE_FAST_COUNT",
+          "keysExamined": 0,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "distinct",
+          "plan": "DISTINCT_SCAN { brand: 1, name: 1, _id: 1 }",
+          "keysExamined": 21,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "distinct",
+          "plan": "DISTINCT_SCAN { category: 1, createdAt: -1, _id: -1 }",
+          "keysExamined": 9,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "find",
+          "plan": "IXSCAN { dropRank: 1, _id: 1 }",
+          "keysExamined": 12,
+          "docsExamined": 12,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "aggregate",
+          "plan": "IXSCAN { category: 1, brand: 1, currentPrice: 1 }",
+          "keysExamined": 20013,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 4
+        },
+        {
+          "command": "aggregate",
+          "plan": "IXSCAN { category: 1, brand: 1, currentPrice: 1 }",
+          "keysExamined": 20013,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 4
+        }
+      ]
+    },
+    {
+      "name": "text search",
+      "medianMs": 11.6,
+      "total": 1697,
+      "dbOps": 6,
+      "ops": [
+        {
+          "command": "distinct",
+          "plan": "DISTINCT_SCAN { category: 1, createdAt: -1, _id: -1 }",
+          "keysExamined": 9,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "distinct",
+          "plan": "DISTINCT_SCAN { brand: 1, name: 1, _id: 1 }",
+          "keysExamined": 21,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "aggregate",
+          "plan": "IXSCAN { _fts: \"text\", _ftsx: 1 }, IXSCAN { _fts: \"text\", _ftsx: 1 }",
+          "keysExamined": 3764,
+          "docsExamined": 3596,
+          "inMemorySort": false,
+          "ms": 11
+        },
+        {
+          "command": "find",
+          "plan": "IXSCAN { _fts: \"text\", _ftsx: 1 }, IXSCAN { _fts: \"text\", _ftsx: 1 }",
+          "keysExamined": 3764,
+          "docsExamined": 3596,
+          "inMemorySort": true,
+          "ms": 11
+        },
+        {
+          "command": "aggregate",
+          "plan": "IXSCAN { _fts: \"text\", _ftsx: 1 }, IXSCAN { _fts: \"text\", _ftsx: 1 }",
+          "keysExamined": 3764,
+          "docsExamined": 3596,
+          "inMemorySort": false,
+          "ms": 11
+        },
+        {
+          "command": "aggregate",
+          "plan": "IXSCAN { _fts: \"text\", _ftsx: 1 }, IXSCAN { _fts: \"text\", _ftsx: 1 }",
+          "keysExamined": 3764,
+          "docsExamined": 3596,
+          "inMemorySort": false,
+          "ms": 11
+        }
+      ]
+    },
+    {
+      "name": "deep page (40)",
+      "medianMs": 3.7,
+      "total": 20013,
+      "dbOps": 6,
+      "ops": [
+        {
+          "command": "count",
+          "plan": "RECORD_STORE_FAST_COUNT",
+          "keysExamined": 0,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "distinct",
+          "plan": "DISTINCT_SCAN { category: 1, createdAt: -1, _id: -1 }",
+          "keysExamined": 9,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "distinct",
+          "plan": "DISTINCT_SCAN { brand: 1, name: 1, _id: 1 }",
+          "keysExamined": 21,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "find",
+          "plan": "IXSCAN { createdAt: -1, _id: -1 }",
+          "keysExamined": 480,
+          "docsExamined": 12,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "aggregate",
+          "plan": "IXSCAN { category: 1, brand: 1, currentPrice: 1 }",
+          "keysExamined": 20013,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 4
+        },
+        {
+          "command": "aggregate",
+          "plan": "IXSCAN { category: 1, brand: 1, currentPrice: 1 }",
+          "keysExamined": 20013,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 4
+        }
+      ]
+    }
+  ]
+}

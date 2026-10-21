@@ -5,12 +5,16 @@
   "type": "module",
   "description": "Shared Zod schemas and types for the PricePilot web app and API.",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./taxonomy": "./src/taxonomy.ts",
+    "./pricing": "./src/pricing.ts",
+    "./api-codes": "./src/api-codes.ts"
   },
   "dependencies": {
     "zod": "4.6.7"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json"
-  }
+  },
+  "sideEffects": false
 }

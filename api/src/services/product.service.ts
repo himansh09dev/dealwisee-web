@@ -10,11 +10,11 @@ import {
   type ProductListMeta,
   type ProductListQuery,
 } from "@pricepilot/contracts";
-import type { PipelineStage, QueryFilter } from "mongoose";
+import type { QueryFilter } from "mongoose";
 import { Types } from "mongoose";
 
 import { notFound } from "../lib/http-error.ts";
-import { ProductModel, type ProductDoc } from "../models/product.model.ts";
+import { dropRankOf, ProductModel, type ProductDoc } from "../models/product.model.ts";
 import { WishlistModel } from "../models/wishlist.model.ts";
 
 type LeanProduct = ProductDoc & { createdAt: Date; updatedAt: Date };
@@ -55,13 +55,8 @@ export function toProductDto(doc: LeanProduct): Product {
 function withDerived(input: ProductInputParsed, history?: number[]) {
   const offers = input.offers.map((o) => ({ ...o, storeName: storeName(o.storeId) }));
   const { currentPrice, previousPrice } = derivePrices({ offers, history });
-  return {
-    ...input,
-    offers,
-    currentPrice,
-    previousPrice,
-    vsAverage: vsAverage({ offers, history, currentPrice }),
-  };
+  const ratio = vsAverage({ offers, history, currentPrice });
+  return { ...input, offers, currentPrice, previousPrice, vsAverage: ratio, dropRank: dropRankOf(ratio) };
 }
 
 /**
@@ -77,25 +72,26 @@ function allTermsSearch(q: string) {
     .join(" ");
 }
 
-const sortStages: Record<ProductListQuery["sort"], PipelineStage.FacetPipelineStage[]> = {
-  newest: [{ $sort: { createdAt: -1, _id: -1 } }],
-  "price-asc": [{ $sort: { currentPrice: 1, name: 1 } }],
-  "price-desc": [{ $sort: { currentPrice: -1, name: 1 } }],
-  "name-asc": [{ $sort: { brand: 1, name: 1 } }],
-  // Products without history can't be ranked by drop; they go last.
-  drops: [
-    { $addFields: { _noHistory: { $cond: [{ $eq: ["$vsAverage", null] }, 1, 0] } } },
-    { $sort: { _noHistory: 1, vsAverage: 1, name: 1 } },
-    { $project: { _noHistory: 0 } },
-  ],
+// Sort specs match the indexes declared on the model; _id makes ties stable.
+const sortSpecs: Record<ProductListQuery["sort"], Record<string, 1 | -1>> = {
+  newest: { createdAt: -1, _id: -1 },
+  "price-asc": { currentPrice: 1, _id: 1 },
+  "price-desc": { currentPrice: -1, _id: -1 },
+  "name-asc": { brand: 1, name: 1, _id: 1 },
+  drops: { dropRank: 1, _id: 1 },
 };
 
 type FacetRow = { _id: string; count: number };
-type ListAggregate = { items: LeanProduct[]; total: { n: number }[]; categories: FacetRow[]; brands: FacetRow[] };
 
+/**
+ * One listing page. The page of items comes from an indexed find with
+ * sort/skip/limit, so MongoDB reads only the documents it returns instead
+ * of scanning and sorting the whole collection. Total and facet counts are
+ * separate queries run in parallel. Facet counts ignore their own dimension:
+ * picking "Audio" still shows how many results adding "Phones" would bring.
+ */
 export async function listProducts(query: ProductListQuery): Promise<{ items: Product[]; meta: ProductListMeta }> {
   const terms = allTermsSearch(query.q);
-  // $text must be the first stage; it plus price form the base every facet shares.
   const base: QueryFilter<LeanProduct> = {};
   if (terms) base.$text = { $search: terms };
   if (query.minPrice !== undefined || query.maxPrice !== undefined) {
@@ -106,56 +102,58 @@ export async function listProducts(query: ProductListQuery): Promise<{ items: Pr
   }
   const byCategory = query.category.length > 0 ? { category: { $in: query.category } } : {};
   const byBrand = query.brand.length > 0 ? { brand: { $in: query.brand } } : {};
+  const filter = { ...base, ...byCategory, ...byBrand };
 
-  const run = async (page: number) => {
-    const [result] = await ProductModel.aggregate<ListAggregate>([
-      { $match: base },
-      {
-        $facet: {
-          items: [
-            { $match: { ...byCategory, ...byBrand } },
-            ...sortStages[query.sort],
-            { $skip: (page - 1) * query.pageSize },
-            { $limit: query.pageSize },
-          ],
-          total: [{ $match: { ...byCategory, ...byBrand } }, { $count: "n" }],
-          // Facet counts ignore their own dimension: picking "Audio" still
-          // shows how many results adding "Phones" would bring.
-          categories: [{ $match: byBrand }, { $group: { _id: "$category", count: { $sum: 1 } } }],
-          brands: [{ $match: byCategory }, { $group: { _id: "$brand", count: { $sum: 1 } } }],
-        },
-      },
+  const page = (n: number) =>
+    ProductModel.find(filter)
+      .sort(sortSpecs[query.sort])
+      .skip((n - 1) * query.pageSize)
+      .limit(query.pageSize)
+      .lean<LeanProduct[]>();
+  // An unfiltered facet count would otherwise scan every document; the
+  // covering index answers it from index keys alone. When there is a filter,
+  // the planner's own choice (a narrower index) is faster, so no hint.
+  const facet = (match: QueryFilter<LeanProduct>, field: "category" | "brand") => {
+    const pipeline = ProductModel.aggregate<FacetRow>([
+      { $match: match },
+      { $project: { _id: 0, category: 1, brand: 1 } },
+      { $group: { _id: `$${field}`, count: { $sum: 1 } } },
     ]);
-    return result ?? { items: [], total: [], categories: [], brands: [] };
+    return Object.keys(match).length === 0 ? pipeline.hint({ category: 1, brand: 1, currentPrice: 1 }) : pipeline;
   };
+  const isUnfiltered = Object.keys(filter).length === 0;
 
-  const [allCategories, allBrands] = await Promise.all([
+  let pageNumber = query.page;
+  const [firstItems, total, categoryRows, brandRows, allCategories, allBrands] = await Promise.all([
+    page(pageNumber),
+    // Unfiltered totals come from collection metadata instead of a scan.
+    isUnfiltered ? ProductModel.estimatedDocumentCount() : ProductModel.countDocuments(filter),
+    facet({ ...base, ...byBrand }, "category"),
+    facet({ ...base, ...byCategory }, "brand"),
     ProductModel.distinct("category"),
     ProductModel.distinct("brand"),
   ]);
+  let items = firstItems;
 
-  let page = query.page;
-  let result = await run(page);
-  const total = result.total[0]?.n ?? 0;
   const pageCount = Math.max(1, Math.ceil(total / query.pageSize));
   // A stale link to a page that no longer exists shows the last page instead of nothing.
-  if (page > pageCount) {
-    page = pageCount;
-    result = await run(page);
+  if (pageNumber > pageCount) {
+    pageNumber = pageCount;
+    items = await page(pageNumber);
   }
 
   const stocked = new Set<string>(allCategories);
   const count = (rows: FacetRow[], value: string) => rows.find((r) => r._id === value)?.count ?? 0;
   const categories = Object.entries(categoryLabels)
     .filter(([id]) => stocked.has(id))
-    .map(([id, label]) => ({ value: id, label, count: count(result.categories, id) }));
+    .map(([id, label]) => ({ value: id, label, count: count(categoryRows, id) }));
   const brands = [...allBrands]
     .sort((a, b) => a.localeCompare(b))
-    .map((b) => ({ value: b, label: b, count: count(result.brands, b) }));
+    .map((b) => ({ value: b, label: b, count: count(brandRows, b) }));
 
   return {
-    items: result.items.map(toProductDto),
-    meta: { page, pageSize: query.pageSize, total, pageCount, facets: { categories, brands } },
+    items: items.map(toProductDto),
+    meta: { page: pageNumber, pageSize: query.pageSize, total, pageCount, facets: { categories, brands } },
   };
 }
 

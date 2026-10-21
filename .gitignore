@@ -42,3 +42,8 @@ next-env.d.ts
 
 # example env files are documentation, not secrets
 !.env.example
+
+# e2e / perf artifacts
+/.next-e2e/
+/test-results/
+/playwright-report/

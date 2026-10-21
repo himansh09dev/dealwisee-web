@@ -1,0 +1,6 @@
+{
+  "_comment": "TEST-ONLY accounts, created in a throwaway in-memory database by api/scripts/test-stack.ts. Never use these anywhere else.",
+  "admin": { "name": "E2E Admin", "email": "e2e-admin@example.test", "password": "e2e-admin-pass-1" },
+  "shopper": { "name": "E2E Shopper", "email": "e2e-shopper@example.test", "password": "e2e-shopper-pass-1" },
+  "otherShopper": { "name": "E2E Other", "email": "e2e-other@example.test", "password": "e2e-other-pass-1" }
+}

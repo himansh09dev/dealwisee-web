@@ -57,11 +57,11 @@ export function ActiveFilters({ categories }: { categories: CategoryName[] }) {
           key={chip.key}
           type="button"
           onClick={() => update(chip.remove)}
+          aria-label={`Remove filter: ${chip.label}`}
           className="focus-ring inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-full border border-line-strong bg-surface pr-2 pl-3 text-sm text-ink transition-colors hover:border-ink-muted"
         >
           {chip.label}
           <X aria-hidden className="size-3.5 text-ink-muted" />
-          <span className="sr-only">(remove filter)</span>
         </button>
       ))}
       <Button variant="link" size="sm" onClick={() => update(clearedFilters)} className="ml-1">

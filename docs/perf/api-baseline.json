@@ -1,0 +1,262 @@
+{
+  "products": 20013,
+  "runs": 25,
+  "results": [
+    {
+      "name": "default (newest)",
+      "medianMs": 14.6,
+      "total": 20013,
+      "dbOps": 3,
+      "ops": [
+        {
+          "command": "distinct",
+          "plan": "DISTINCT_SCAN { category: 1, currentPrice: 1 }",
+          "keysExamined": 9,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "distinct",
+          "plan": "DISTINCT_SCAN { brand: 1 }",
+          "keysExamined": 21,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "aggregate",
+          "plan": "COLLSCAN",
+          "keysExamined": 0,
+          "docsExamined": 20013,
+          "inMemorySort": true,
+          "ms": 13
+        }
+      ]
+    },
+    {
+      "name": "category filter",
+      "medianMs": 16.6,
+      "total": 2251,
+      "dbOps": 3,
+      "ops": [
+        {
+          "command": "distinct",
+          "plan": "DISTINCT_SCAN { brand: 1 }",
+          "keysExamined": 21,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "distinct",
+          "plan": "DISTINCT_SCAN { category: 1, currentPrice: 1 }",
+          "keysExamined": 9,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "aggregate",
+          "plan": "COLLSCAN",
+          "keysExamined": 0,
+          "docsExamined": 20013,
+          "inMemorySort": true,
+          "ms": 16
+        }
+      ]
+    },
+    {
+      "name": "category + price asc",
+      "medianMs": 16.7,
+      "total": 2251,
+      "dbOps": 3,
+      "ops": [
+        {
+          "command": "distinct",
+          "plan": "DISTINCT_SCAN { category: 1, currentPrice: 1 }",
+          "keysExamined": 9,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "distinct",
+          "plan": "DISTINCT_SCAN { brand: 1 }",
+          "keysExamined": 21,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "aggregate",
+          "plan": "COLLSCAN",
+          "keysExamined": 0,
+          "docsExamined": 20013,
+          "inMemorySort": true,
+          "ms": 16
+        }
+      ]
+    },
+    {
+      "name": "price range",
+      "medianMs": 2.3,
+      "total": 1563,
+      "dbOps": 3,
+      "ops": [
+        {
+          "command": "distinct",
+          "plan": "DISTINCT_SCAN { category: 1, currentPrice: 1 }",
+          "keysExamined": 9,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "distinct",
+          "plan": "DISTINCT_SCAN { brand: 1 }",
+          "keysExamined": 21,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "aggregate",
+          "plan": "IXSCAN { currentPrice: 1 }",
+          "keysExamined": 1563,
+          "docsExamined": 1563,
+          "inMemorySort": true,
+          "ms": 2
+        }
+      ]
+    },
+    {
+      "name": "brand + name sort",
+      "medianMs": 16.4,
+      "total": 1623,
+      "dbOps": 3,
+      "ops": [
+        {
+          "command": "distinct",
+          "plan": "DISTINCT_SCAN { brand: 1 }",
+          "keysExamined": 21,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "distinct",
+          "plan": "DISTINCT_SCAN { category: 1, currentPrice: 1 }",
+          "keysExamined": 9,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "aggregate",
+          "plan": "COLLSCAN",
+          "keysExamined": 0,
+          "docsExamined": 20013,
+          "inMemorySort": true,
+          "ms": 16
+        }
+      ]
+    },
+    {
+      "name": "biggest drops",
+      "medianMs": 20.9,
+      "total": 20013,
+      "dbOps": 3,
+      "ops": [
+        {
+          "command": "distinct",
+          "plan": "DISTINCT_SCAN { brand: 1 }",
+          "keysExamined": 21,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "distinct",
+          "plan": "DISTINCT_SCAN { category: 1, currentPrice: 1 }",
+          "keysExamined": 9,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "aggregate",
+          "plan": "COLLSCAN",
+          "keysExamined": 0,
+          "docsExamined": 20013,
+          "inMemorySort": true,
+          "ms": 20
+        }
+      ]
+    },
+    {
+      "name": "text search",
+      "medianMs": 13,
+      "total": 1697,
+      "dbOps": 3,
+      "ops": [
+        {
+          "command": "distinct",
+          "plan": "DISTINCT_SCAN { category: 1, currentPrice: 1 }",
+          "keysExamined": 9,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "distinct",
+          "plan": "DISTINCT_SCAN { brand: 1 }",
+          "keysExamined": 21,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "aggregate",
+          "plan": "IXSCAN { _fts: \"text\", _ftsx: 1 }, IXSCAN { _fts: \"text\", _ftsx: 1 }",
+          "keysExamined": 3764,
+          "docsExamined": 3596,
+          "inMemorySort": true,
+          "ms": 11
+        }
+      ]
+    },
+    {
+      "name": "deep page (40)",
+      "medianMs": 15.5,
+      "total": 20013,
+      "dbOps": 3,
+      "ops": [
+        {
+          "command": "distinct",
+          "plan": "DISTINCT_SCAN { category: 1, currentPrice: 1 }",
+          "keysExamined": 9,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "distinct",
+          "plan": "DISTINCT_SCAN { brand: 1 }",
+          "keysExamined": 21,
+          "docsExamined": 0,
+          "inMemorySort": false,
+          "ms": 0
+        },
+        {
+          "command": "aggregate",
+          "plan": "COLLSCAN",
+          "keysExamined": 0,
+          "docsExamined": 20013,
+          "inMemorySort": true,
+          "ms": 15
+        }
+      ]
+    }
+  ]
+}

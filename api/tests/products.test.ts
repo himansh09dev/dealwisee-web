@@ -1,10 +1,9 @@
-import { priceInsight, type Product } from "@pricepilot/contracts";
+import { priceInsight, productInputSchema, type Product } from "@pricepilot/contracts";
 import supertest from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
 
-import { ProductModel } from "../src/models/product.model.ts";
-import { buildProductDocuments } from "../src/seed/build.ts";
 import { seedProducts } from "../src/seed/data.ts";
+import { createProduct } from "../src/services/product.service.ts";
 import { makeApp, seedCatalog, useTestDatabase } from "./helpers.ts";
 
 useTestDatabase();
@@ -57,15 +56,31 @@ describe("GET /api/products", () => {
     expect(prices).toEqual([...prices].sort((a: number, b: number) => a - b));
 
     // A product with no price history can't be ranked by drop: it must sort last.
-    const [template] = buildProductDocuments(seedProducts);
+    // Created through the service (as an admin would), so derived fields are consistent.
+    const [template] = seedProducts;
     if (!template) throw new Error("fixture missing");
-    await ProductModel.create({ ...template, slug: "no-history", history: undefined, vsAverage: null });
+    await createProduct(productInputSchema.parse({ ...template, slug: "no-history" }));
 
     const drops = await api.get("/api/products").query({ sort: "drops", pageSize: 48 }).expect(200);
     const products: Product[] = drops.body.data;
     expect(products.at(-1)?.slug).toBe("no-history");
     const ratios = products.slice(0, -1).map((p) => priceInsight(p).history?.vsAverage ?? 0);
     expect(ratios).toEqual([...ratios].sort((a, b) => a - b));
+  });
+
+  it("accepts the largest allowed page size", async () => {
+    const res = await api.get("/api/products").query({ pageSize: 48 }).expect(200);
+    expect(res.body.meta.pageSize).toBe(48);
+  });
+
+  it("paginates without repeating or skipping products when sort keys tie", async () => {
+    // Several products share a price; the _id tie-break keeps pages stable.
+    const pages = await Promise.all(
+      [1, 2, 3, 4, 5].map((page) => api.get("/api/products").query({ sort: "price-asc", pageSize: 3, page })),
+    );
+    const slugs = pages.flatMap((p) => p.body.data.map((x: Item) => x.slug));
+    expect(new Set(slugs).size).toBe(slugs.length);
+    expect(slugs).toHaveLength(13);
   });
 
   it("clamps a page beyond the end to the last page", async () => {
@@ -80,6 +95,9 @@ describe("GET /api/products", () => {
     [{ category: "spaceships" }, "category.0"],
     [{ minPrice: 500, maxPrice: 100 }, "minPrice"],
     [{ page: -1 }, "page"],
+    [{ page: 1001 }, "page"],
+    [{ pageSize: 49 }, "pageSize"],
+    [{ pageSize: 0 }, "pageSize"],
   ])("rejects invalid query %o with a 400", async (query, path) => {
     const res = await api.get("/api/products").query(query).expect(400);
     expect(res.body.error.code).toBe("VALIDATION_ERROR");

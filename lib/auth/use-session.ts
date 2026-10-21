@@ -1,15 +1,35 @@
 "use client";
 
-import { publicUserSchema, type PublicUser, type Role } from "@pricepilot/contracts";
+import type { PublicUser, Role } from "@pricepilot/contracts";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { z } from "zod";
 
 import { clientApi } from "@/lib/api/client";
 
 export const sessionKey = ["session"] as const;
-const meResponse = z.object({ data: z.object({ user: publicUserSchema.nullable() }) });
-const ackResponse = z.object({ data: z.unknown() });
+/*
+ * The session hook runs on every page (header), so it validates responses
+ * with small hand-written checks instead of loading the schema library.
+ */
+const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null;
+
+const meResponse = {
+  parse(body: unknown): { data: { user: PublicUser | null } } {
+    const user = isRecord(body) && isRecord(body.data) ? body.data.user : undefined;
+    if (user === null) return { data: { user: null } };
+    if (
+      isRecord(user) &&
+      typeof user.id === "string" &&
+      typeof user.name === "string" &&
+      typeof user.email === "string" &&
+      (user.role === "user" || user.role === "admin")
+    ) {
+      return { data: { user: { id: user.id, name: user.name, email: user.email, role: user.role } } };
+    }
+    throw new Error("Unexpected /auth/me response");
+  },
+};
+const ackResponse = { parse: (body: unknown) => body };
 
 /** The signed-in user (null when signed out). Server state, owned by TanStack Query. */
 export function useSession() {

@@ -14,6 +14,7 @@ Further reading:
 - [docs/api.md](docs/api.md): endpoint reference.
 - [docs/frontend-architecture.md](docs/frontend-architecture.md): data flow, caching, state and security notes.
 - [docs/design-system.md](docs/design-system.md): visual direction and tokens.
+- [docs/phase-4-report.md](docs/phase-4-report.md): performance, testing, accessibility and security review.
 
 ## Local setup
 
@@ -65,16 +66,27 @@ Further reading:
 
    Open <http://localhost:3000>. Sign in with the admin account from `api/.env` to reach **Manage products** in the account menu.
 
-## Checks
+## Checks and tests
 
 ```bash
-npm run check
+npm run check       # lint, typecheck and unit/component/API tests
+npm run test:e2e    # Playwright: production build + isolated test API on :3100 / :4100
+npm run perf:web    # page weight and Web Vitals → docs/perf/web-latest.json
+npm run perf:api    # catalog query benchmark on 20,000 synthetic products
 ```
 
-This runs:
-- web: lint, typecheck and unit tests;
+`npm run check` covers:
+- web: lint, typecheck, and unit and component tests;
 - contracts: typecheck;
 - API: typecheck and integration tests against a throwaway in-memory MongoDB.
+
+The end-to-end and performance runs use their own in-memory database, test accounts from `e2e/test-users.json`, and a separate build folder (`.next-e2e`). They never touch your dev servers or database. The first run downloads Playwright's Chromium:
+
+```bash
+npx playwright install chromium
+```
+
+See [docs/phase-4-report.md](docs/phase-4-report.md) for the latest measurements and review.
 
 ## How the pieces talk
 

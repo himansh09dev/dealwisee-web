@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { pageWindow } from "@/components/listing/pagination";
 import { loginSchema, registerFormSchema } from "@/lib/auth/forms";
 import { fromProduct, productFormSchema, slugify, toProductInput } from "@/lib/catalog/product-form";
-import { productInputSchema, type Product } from "@/lib/catalog/schema";
+import { productInputSchema, type Product } from "@pricepilot/contracts";
 
 const product: Product = {
   id: "0123456789abcdef01234567",

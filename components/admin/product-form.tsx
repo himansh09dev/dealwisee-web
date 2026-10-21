@@ -16,6 +16,7 @@ import { FormAlert } from "@/components/ui/form-alert";
 import { Input, inputClasses } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
 import { toast } from "@/components/ui/toaster";
+import { allowedImageHosts } from "@pricepilot/contracts/taxonomy";
 import { formFieldForApiPath, productFormSchema, slugify, type ProductFormValues } from "@/lib/catalog/product-form";
 import type { Category, Store } from "@/lib/catalog/types";
 import { cn } from "@/lib/utils";
@@ -59,8 +60,7 @@ function ImagePreview({ src, alt }: { src: string; alt: string }) {
   return (
     <div className="relative grid aspect-[4/3] w-full max-w-xs place-items-center overflow-hidden rounded-lg border border-dashed border-line-strong bg-sunken text-xs text-ink-subtle">
       {valid ? (
-        // unoptimized: arbitrary admin-entered hosts aren't in images.remotePatterns.
-        <Image src={src} alt={alt || "Image preview"} fill unoptimized sizes="20rem" className="object-cover" />
+        <Image src={src} alt={alt || "Image preview"} fill sizes="20rem" className="object-cover" />
       ) : (
         "Preview appears when the URL is valid"
       )}
@@ -168,7 +168,11 @@ export function ProductForm({ target, defaultValues, categories, stores }: Produ
       </Section>
 
       <Section title="Image" description="One primary photo. Uploads arrive with storage in a later phase.">
-        <Field label="Image URL" hint="https:// URL or a path under /images/" error={errors.imageSrc?.message}>
+        <Field
+          label="Image URL"
+          hint={`A path under /images/ or an https:// image from ${allowedImageHosts.join(", ")}`}
+          error={errors.imageSrc?.message}
+        >
           <Input {...bind("imageSrc")} inputMode="url" spellCheck={false} />
         </Field>
         <Field label="Alt text" hint="Describe what's in the photo." error={errors.imageAlt?.message}>

@@ -1,10 +1,10 @@
 "use client";
 
-import { productSchema } from "@pricepilot/contracts";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { z } from "zod";
 
+import { toast } from "@/components/ui/toaster";
 import { clientApi } from "@/lib/api/client";
+import { isApiError } from "@/lib/api/errors";
 import { useSession } from "@/lib/auth/use-session";
 import { withInsight, type ProductWithInsight } from "@/lib/catalog/schema";
 
@@ -14,21 +14,72 @@ import { withInsight, type ProductWithInsight } from "@/lib/catalog/schema";
  */
 
 export const wishlistKey = ["wishlist"] as const;
-const listResponse = z.object({ data: z.array(productSchema) });
-const ackResponse = z.object({ data: z.object({ productId: z.string(), saved: z.boolean() }) });
+
+/**
+ * The full product schema is loaded on demand: the header uses this hook on
+ * every page, but only signed-in users ever fetch a wishlist.
+ */
+async function listParser() {
+  // Named imports inside a small module keep this chunk tree-shaken.
+  return (await import("./wishlist-schema")).wishlistResponse;
+}
+
+const ackResponse = {
+  parse(body: unknown) {
+    const data = typeof body === "object" && body !== null && "data" in body ? body.data : undefined;
+    if (typeof data !== "object" || data === null) throw new Error("Unexpected wishlist response");
+    return data;
+  },
+};
+
+async function fetchWishlist({ signal }: { signal: AbortSignal }) {
+  return (await clientApi("/wishlist", await listParser(), { signal })).data.map(withInsight);
+}
 
 export function useWishlist() {
   const { data: user } = useSession();
-  return useQuery({
+  return useQuery({ queryKey: wishlistKey, queryFn: fetchWishlist, enabled: Boolean(user) });
+}
+
+/**
+ * Whether one product is saved, and whether that's known yet. Each heart
+ * subscribes only to its own boolean (TanStack `select` + `notifyOnChangeProps`),
+ * so toggling one product re-renders one heart, not every card on the page.
+ */
+export function useIsSaved(productId: string) {
+  const { data: user } = useSession();
+  const { data, isSuccess } = useQuery({
     queryKey: wishlistKey,
-    queryFn: async ({ signal }) => (await clientApi("/wishlist", listResponse, { signal })).data.map(withInsight),
+    queryFn: fetchWishlist,
     enabled: Boolean(user),
+    select: (items) => items.some((i) => i.product.id === productId),
+    notifyOnChangeProps: ["data", "isSuccess"],
   });
+  return { saved: data ?? false, known: isSuccess };
+}
+
+/** Number of saved products, for the header badge. */
+export function useWishlistCount() {
+  const { data: user } = useSession();
+  return (
+    useQuery({
+      queryKey: wishlistKey,
+      queryFn: fetchWishlist,
+      enabled: Boolean(user),
+      select: (items) => items.length,
+      notifyOnChangeProps: ["data"],
+    }).data ?? 0
+  );
 }
 
 type Toggle = { item: ProductWithInsight; save: boolean };
 
-/** Optimistic: the heart flips immediately and rolls back if the API refuses. */
+/**
+ * Optimistic: the heart flips immediately and rolls back if the API refuses.
+ * Error reporting lives here, not in per-call callbacks: removing an item on
+ * the wishlist page unmounts its card (and button) before the request ends,
+ * and TanStack skips per-call callbacks for unmounted components.
+ */
 export function useWishlistToggle() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -43,7 +94,11 @@ export function useWishlistToggle() {
       });
       return { previous };
     },
-    onError: (_err, _vars, context) => queryClient.setQueryData(wishlistKey, context?.previous),
+    onError: (err, _vars, context) => {
+      queryClient.setQueryData(wishlistKey, context?.previous);
+      // 401s are handled globally (session expired); everything else is reported here.
+      if (!isApiError(err, 401)) toast("Couldn't update your wishlist", { description: err.message });
+    },
     onSettled: () => queryClient.invalidateQueries({ queryKey: wishlistKey }),
   });
 }

@@ -1,55 +1,15 @@
 import { z } from "zod";
 
+import { allowedImageHosts, categoryIds, isAllowedImageUrl, MAX_PAGE_SIZE, sortValues, storeIds } from "./taxonomy.ts";
+
 /*
  * Catalog contract shared by the API (validation, persistence) and the web
  * app (rendering, form validation, response parsing). Money is always
  * integer cents.
  */
 
-export const categoryIds = [
-  "audio",
-  "phones",
-  "computing",
-  "gaming",
-  "cameras",
-  "wearables",
-  "footwear",
-  "home",
-  "accessories",
-] as const;
 export const categoryIdSchema = z.enum(categoryIds);
-export type CategoryId = z.infer<typeof categoryIdSchema>;
-
-/** The category taxonomy is app configuration, not catalog data. */
-export const categoryLabels: Record<CategoryId, string> = {
-  audio: "Audio",
-  phones: "Phones",
-  computing: "Computing",
-  gaming: "Gaming",
-  cameras: "Cameras",
-  wearables: "Wearables",
-  footwear: "Footwear",
-  home: "Home & Kitchen",
-  accessories: "Accessories",
-};
-export const categoryList = categoryIds.map((id) => ({ id, name: categoryLabels[id] }));
-export type Category = (typeof categoryList)[number];
-
-/** Retailers offers can reference. Fictional, for the demo dataset. */
-export const storeIds = ["northline", "parcel", "voltmart", "harbor", "kettle"] as const;
 export const storeIdSchema = z.enum(storeIds);
-const storeNames: Record<(typeof storeIds)[number], string> = {
-  northline: "Northline",
-  parcel: "Parcel & Co.",
-  voltmart: "Voltmart",
-  harbor: "Harbor Supply",
-  kettle: "Kettle & Crate",
-};
-export type Store = { id: string; name: string };
-export const stores: Store[] = storeIds.map((id) => ({ id, name: storeNames[id] }));
-export function storeName(id: string) {
-  return stores.find((s) => s.id === id)?.name ?? id;
-}
 
 export const centsSchema = z.number().int().nonnegative().max(100_000_000);
 
@@ -81,7 +41,7 @@ export const imageSchema = z.object({
     .trim()
     .min(1)
     .max(2048)
-    .refine((v) => v.startsWith("/images/") || /^https:\/\/\S+$/.test(v), "Use an https:// URL or a path under /images/"),
+    .refine(isAllowedImageUrl, `Use a path under /images/ or an https:// image from ${allowedImageHosts.join(", ")}`),
   alt: z.string().trim().min(1, "Describe the image").max(200),
   /** Where the photograph came from, when known (e.g. its Unsplash page). */
   sourceUrl: z.url().optional(),
@@ -132,10 +92,7 @@ export type Product = z.infer<typeof productSchema>;
 
 /* ---------- Listing ---------- */
 
-export const sortValues = ["newest", "price-asc", "price-desc", "name-asc", "drops"] as const;
 export const productSortSchema = z.enum(sortValues);
-export type ProductSort = z.infer<typeof productSortSchema>;
-export const MAX_PAGE_SIZE = 48;
 
 const list = <T extends z.ZodType>(item: T) =>
   z.preprocess((v) => (v === undefined ? [] : Array.isArray(v) ? v : String(v).split(",")), z.array(item).max(20));

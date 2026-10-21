@@ -36,6 +36,8 @@
     "db": "node scripts/dev-db.ts",
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run",
-    "db:check": "node --env-file-if-exists=.env scripts/check-db.ts"
+    "db:check": "node --env-file-if-exists=.env scripts/check-db.ts",
+    "test-stack": "node scripts/test-stack.ts",
+    "bench": "node scripts/bench-catalog.ts --products 20000 --runs 25"
   }
 }

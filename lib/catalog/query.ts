@@ -1,11 +1,15 @@
-import { z } from "zod";
-
-import { categoryIdSchema, sortValues, type CategoryId, type ProductSort } from "@pricepilot/contracts";
+import {
+  isCategoryId,
+  sortValues,
+  type CategoryId,
+  type ProductSort,
+} from "@pricepilot/contracts/taxonomy";
 
 /*
  * URL <-> query contract for /products. The URL is the source of truth for
  * listing state: parsing is tolerant (bad values fall back to defaults so a
  * mangled link still renders), serialising omits defaults so URLs stay short.
+ * Deliberately free of Zod: the listing's client controls import this module.
  */
 
 export { sortValues, type ProductSort };
@@ -51,22 +55,25 @@ type RawParams = Record<string, string | string[] | undefined>;
 const asList = (v: string | string[] | undefined) => (v === undefined ? [] : Array.isArray(v) ? v : [v]);
 const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
 
-const priceSchema = z.coerce.number().int().min(0).max(100_000).nullable().catch(null);
+/** Whole number within [min, max], or null for anything else. */
+function intInRange(raw: string | undefined, min: number, max: number): number | null {
+  if (raw === undefined || raw.trim() === "") return null;
+  const n = Number(raw);
+  return Number.isInteger(n) && n >= min && n <= max ? n : null;
+}
+
+const isSort = (v: string | undefined): v is ProductSort => sortValues.some((s) => s === v);
 
 export function parseProductQuery(params: RawParams): ProductQuery {
-  const categories = asList(params.category).flatMap((c) => {
-    const parsed = categoryIdSchema.safeParse(c);
-    return parsed.success ? [parsed.data] : [];
-  });
+  const categories = asList(params.category).filter(isCategoryId);
   const brands = asList(params.brand).map((b) => b.trim()).filter((b) => b.length > 0 && b.length <= 60);
 
-  const rawMin = first(params.min);
-  const rawMax = first(params.max);
-  let minPrice = rawMin ? priceSchema.parse(rawMin) : null;
-  let maxPrice = rawMax ? priceSchema.parse(rawMax) : null;
+  let minPrice = intInRange(first(params.min), 0, 100_000);
+  let maxPrice = intInRange(first(params.max), 0, 100_000);
   if (minPrice !== null && maxPrice !== null && minPrice > maxPrice) {
     [minPrice, maxPrice] = [maxPrice, minPrice];
   }
+  const sort = first(params.sort);
 
   return {
     q: (first(params.q) ?? "").trim().slice(0, 100),
@@ -74,8 +81,8 @@ export function parseProductQuery(params: RawParams): ProductQuery {
     brands: [...new Set(brands)],
     minPrice,
     maxPrice,
-    sort: z.enum(sortValues).catch(DEFAULT_SORT).parse(first(params.sort)),
-    page: z.coerce.number().int().min(1).max(10_000).catch(1).parse(first(params.page) ?? 1),
+    sort: isSort(sort) ? sort : DEFAULT_SORT,
+    page: intInRange(first(params.page), 1, 10_000) ?? 1,
     pageSize: PAGE_SIZE,
   };
 }

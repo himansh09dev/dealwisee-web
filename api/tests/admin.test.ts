@@ -16,7 +16,7 @@ const newProduct: ProductInput = {
   category: "home",
   summary: "1.7 L · Temperature control",
   description: "A kettle used only by the test suite.",
-  image: { url: "https://images.example.test/kettle.jpg", alt: "A silver kettle" },
+  image: { url: "https://images.unsplash.com/photo-kettle?w=800", alt: "A silver kettle" },
   offers: [
     { storeId: "kettle", price: 5999, shipping: 0, inStock: true },
     { storeId: "harbor", price: 4999, shipping: 500, inStock: true },

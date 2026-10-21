@@ -4,11 +4,10 @@ import { Heart } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 
 import { toast } from "@/components/ui/toaster";
-import { isApiError } from "@/lib/api/errors";
 import { useSession } from "@/lib/auth/use-session";
 import type { ProductWithInsight } from "@/lib/catalog/types";
 import { cn } from "@/lib/utils";
-import { useWishlist, useWishlistToggle } from "@/lib/wishlist";
+import { useIsSaved, useWishlistToggle } from "@/lib/wishlist";
 
 type WishlistButtonProps = {
   item: ProductWithInsight;
@@ -20,28 +19,19 @@ export function WishlistButton({ item, variant = "overlay", className }: Wishlis
   const router = useRouter();
   const pathname = usePathname();
   const { data: user, isPending: sessionPending } = useSession();
-  const { data: saved = [] } = useWishlist();
   const toggle = useWishlistToggle();
   const { product } = item;
-  const isSaved = saved.some((i) => i.product.id === product.id);
+  const { saved: isSaved, known } = useIsSaved(product.id);
 
   function run(save: boolean, withUndo: boolean) {
-    toggle.mutate(
-      { item, save },
-      {
-        onSuccess: () => {
-          if (!withUndo) return;
-          toast(save ? "Saved to your wishlist" : "Removed from your wishlist", {
-            description: product.name,
-            action: { label: "Undo", onClick: () => run(!save, false) },
-          });
-        },
-        onError: (err) => {
-          // 401s are handled globally (session expired); everything else is reported here.
-          if (!isApiError(err, 401)) toast("Couldn't update your wishlist", { description: err.message });
-        },
-      },
-    );
+    toggle.mutate({ item, save });
+    // Confirm right away (the UI is already optimistic); errors roll back and toast from the hook.
+    if (withUndo) {
+      toast(save ? "Saved to your wishlist" : "Removed from your wishlist", {
+        description: product.name,
+        action: { label: "Undo", onClick: () => run(!save, false) },
+      });
+    }
   }
 
   function onClick() {
@@ -54,6 +44,8 @@ export function WishlistButton({ item, variant = "overlay", className }: Wishlis
       });
       return;
     }
+    // Until the wishlist has loaded we can't know the current state (or roll back to it).
+    if (!known) return;
     run(!isSaved, true);
   }
 

@@ -1,8 +1,6 @@
 import "server-only";
 
-import type { z } from "zod";
-
-import { ApiError, readEnvelope } from "./errors";
+import { ApiError, readEnvelope, type Parser } from "./errors";
 
 /** Server-only base URL of the Express API (never exposed to the browser). */
 const API_URL = process.env.API_INTERNAL_URL ?? "http://localhost:4000";
@@ -15,7 +13,7 @@ type ServerApiOptions = {
   signal?: AbortSignal;
 };
 
-export async function serverApi<T extends z.ZodType>(path: string, schema: T, options: ServerApiOptions = {}) {
+export async function serverApi<T>(path: string, schema: Parser<T>, options: ServerApiOptions = {}) {
   let res: Response;
   try {
     res = await fetch(`${API_URL}/api${path}`, {

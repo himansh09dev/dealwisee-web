@@ -54,21 +54,33 @@ const productSchema = new Schema(
     currentPrice: { type: Number, required: true, min: 0 },
     previousPrice: { type: Number },
     vsAverage: { type: Number, default: null },
+    /** Sort key for "biggest drops": vsAverage, or NO_HISTORY_RANK so products without history sort last. */
+    dropRank: { type: Number, required: true },
   },
   { timestamps: true },
 );
 
 // Listing filters + sorts. Category/brand are the common facets; price and
 // recency are the common sorts.
-productSchema.index({ category: 1, currentPrice: 1 });
-productSchema.index({ brand: 1 });
-productSchema.index({ currentPrice: 1 });
-productSchema.index({ createdAt: -1 });
-productSchema.index({ vsAverage: 1 });
+// Each listing sort has an index whose keys match it exactly, including the
+// _id tie-break that keeps pagination stable (no repeats or gaps between
+// pages). Category-filtered variants cover the most common filter. Catalog
+// writes are rare (admin only), so extra indexes cost little.
+productSchema.index({ createdAt: -1, _id: -1 });
+productSchema.index({ currentPrice: 1, _id: 1 });
+productSchema.index({ brand: 1, name: 1, _id: 1 });
+productSchema.index({ dropRank: 1, _id: 1 });
+productSchema.index({ category: 1, createdAt: -1, _id: -1 });
+productSchema.index({ category: 1, currentPrice: 1, _id: 1 });
+// Covers facet counting (group by category/brand, filter by price) without reading documents.
+productSchema.index({ category: 1, brand: 1, currentPrice: 1 });
 productSchema.index(
   { name: "text", brand: "text", summary: "text", description: "text", "specs.value": "text" },
   { weights: { name: 10, brand: 8, summary: 4, "specs.value": 2, description: 1 }, name: "product_text" },
 );
+
+export const NO_HISTORY_RANK = 1_000_000;
+export const dropRankOf = (vsAverage: number | null) => vsAverage ?? NO_HISTORY_RANK;
 
 export type ProductDoc = InferSchemaType<typeof productSchema> & { _id: import("mongoose").Types.ObjectId };
 export const ProductModel = model("Product", productSchema);

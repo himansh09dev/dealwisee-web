@@ -6,6 +6,7 @@ import { Suspense } from "react";
 
 import { DeleteProductButton } from "@/components/admin/delete-product-button";
 import { PageIntro } from "@/components/layout/page-intro";
+import { Pagination } from "@/components/listing/pagination";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -26,6 +27,14 @@ export const metadata: Metadata = { title: "Products" };
 async function ProductTable({ searchParams }: Pick<PageProps<"/admin/products">, "searchParams">) {
   const query = { ...parseProductQuery(await searchParams), pageSize: 48, sort: "name-asc" as const };
   const result = await listProducts(query);
+  const pageHref = (page: number) => {
+    const params = new URLSearchParams();
+    if (query.q) params.set("q", query.q);
+    if (query.categories[0]) params.set("category", query.categories[0]);
+    if (page > 1) params.set("page", String(page));
+    const qs = params.toString();
+    return qs ? `/admin/products?${qs}` : "/admin/products";
+  };
   const categories = categoryList;
   const activeCategory = query.categories[0] ?? "";
 
@@ -62,6 +71,7 @@ async function ProductTable({ searchParams }: Pick<PageProps<"/admin/products">,
 
       <p className="mt-6 mb-3 text-sm text-ink-muted" aria-live="polite">
         {result.total} {result.total === 1 ? "product" : "products"}
+        {result.pageCount > 1 && ` · page ${result.page} of ${result.pageCount}`}
       </p>
 
       {result.items.length === 0 ? (
@@ -131,6 +141,9 @@ async function ProductTable({ searchParams }: Pick<PageProps<"/admin/products">,
           </table>
         </div>
       )}
+      <div className="mt-8">
+        <Pagination page={result.page} pageCount={result.pageCount} href={pageHref} />
+      </div>
     </>
   );
 }

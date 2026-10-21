@@ -1,12 +1,24 @@
-import { priceInsight, type PriceInsight, type Product } from "@pricepilot/contracts";
+import { priceInsight, type PriceInsight } from "@pricepilot/contracts/pricing";
+import type { Product } from "@pricepilot/contracts";
 
 /*
- * The catalog contract lives in @pricepilot/contracts (shared with the API).
- * This module adds the web-only view model: a product paired with the price
- * explanation the UI renders.
+ * Web-side catalog module. Re-exports only the Zod-free parts of the contracts
+ * (taxonomy constants, price maths, types), so importing it from browser code
+ * never downloads the validation library. Import schemas from
+ * "@pricepilot/contracts" directly where they're needed.
  */
 
-export * from "@pricepilot/contracts";
+export * from "@pricepilot/contracts/taxonomy";
+export * from "@pricepilot/contracts/pricing";
+export type {
+  Facet,
+  FieldIssue,
+  Product,
+  ProductInput,
+  ProductListMeta,
+  PublicUser,
+  Role,
+} from "@pricepilot/contracts";
 
 export type ProductWithInsight = { product: Product; insight: PriceInsight };
 

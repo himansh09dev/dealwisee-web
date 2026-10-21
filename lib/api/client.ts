@@ -1,15 +1,13 @@
-import type { z } from "zod";
-
-import { ApiError, readEnvelope } from "./errors";
+import { ApiError, readEnvelope, type Parser } from "./errors";
 
 /**
  * Browser-side API calls. Same-origin /api/* (proxied to Express by Next),
  * so the HttpOnly session cookie is sent automatically and no CORS is needed.
  * Pass TanStack Query's `signal` so superseded requests are cancelled.
  */
-export async function clientApi<T extends z.ZodType>(
+export async function clientApi<T>(
   path: string,
-  schema: T,
+  schema: Parser<T>,
   init: { method?: "GET" | "POST" | "PATCH" | "DELETE"; body?: unknown; signal?: AbortSignal } = {},
 ) {
   let res: Response;

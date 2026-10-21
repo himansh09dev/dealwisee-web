@@ -13,7 +13,7 @@ import { SearchBox } from "@/components/listing/search-box";
 import { SortSelect } from "@/components/listing/sort-select";
 import { ProductCard } from "@/components/product/product-card";
 import { listProducts } from "@/lib/catalog";
-import { parseProductQuery } from "@/lib/catalog/query";
+import { parseProductQuery, productsHref } from "@/lib/catalog/query";
 
 export const metadata: Metadata = {
   title: "Discover products",
@@ -72,7 +72,7 @@ async function Listing({ searchParams }: Pick<PageProps<"/products">, "searchPar
           </PendingRegion>
 
           <div className="mt-14">
-            <Pagination query={query} page={result.page} pageCount={result.pageCount} />
+            <Pagination page={result.page} pageCount={result.pageCount} href={(p) => productsHref({ ...query, page: p })} />
           </div>
         </div>
       </div>

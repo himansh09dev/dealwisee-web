@@ -42,6 +42,7 @@ export function makeApp(overrides: Record<string, string> = {}) {
     SCRYPT_LOG_N: String(LOG_N),
     LOG_LEVEL: "silent",
     AUTH_RATE_LIMIT_MAX: "100",
+    AUTH_ACCOUNT_RATE_LIMIT_MAX: "100",
     ...overrides,
   });
   return createApp(env, createLogger("silent"));

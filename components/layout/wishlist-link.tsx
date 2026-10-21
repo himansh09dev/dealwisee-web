@@ -4,10 +4,10 @@ import { Heart } from "lucide-react";
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
-import { useWishlist } from "@/lib/wishlist";
+import { useWishlistCount } from "@/lib/wishlist";
 
 export function WishlistLink({ className }: { className?: string }) {
-  const count = useWishlist().data?.length ?? 0;
+  const count = useWishlistCount();
 
   return (
     <Link

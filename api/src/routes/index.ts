@@ -6,9 +6,11 @@ import { health } from "../controllers/health.controller.ts";
 import * as products from "../controllers/products.controller.ts";
 import * as wishlist from "../controllers/wishlist.controller.ts";
 import { requireAuth, requireRole } from "../middleware/auth.ts";
-import { authRateLimit } from "../middleware/rate-limit.ts";
+import { authRateLimit, loginAccountRateLimit } from "../middleware/rate-limit.ts";
 
-export type RoutesConfig = AuthControllerConfig & { rateLimit: { max: number; windowMs: number } };
+export type RoutesConfig = AuthControllerConfig & {
+  rateLimit: { max: number; accountMax: number; windowMs: number };
+};
 
 /** Personal or privileged responses must never be cached by browsers or proxies. */
 const noStore: RequestHandler = (_req, res, next) => {
@@ -20,6 +22,7 @@ export function apiRouter(config: RoutesConfig) {
   const router = Router();
   const auth = authController(config);
   const limiter = authRateLimit(config.rateLimit);
+  const accountLimiter = loginAccountRateLimit({ max: config.rateLimit.accountMax, windowMs: config.rateLimit.windowMs });
 
   router.get("/health", health);
 
@@ -30,7 +33,7 @@ export function apiRouter(config: RoutesConfig) {
 
   router.use("/auth", noStore);
   router.post("/auth/register", limiter, auth.register);
-  router.post("/auth/login", limiter, auth.login);
+  router.post("/auth/login", limiter, accountLimiter, auth.login);
   router.post("/auth/logout", auth.logout);
   router.get("/auth/me", auth.me);
 

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { categoryIdSchema, type Facet } from "@/lib/catalog/schema";
+import { isCategoryId, type Facet } from "@/lib/catalog/schema";
 
 import { useListing } from "./listing-context";
 
@@ -140,8 +140,7 @@ export function FilterPanel({ facets, idPrefix }: { facets: Facets; idPrefix: st
         selected={query.categories}
         idPrefix={`${idPrefix}-cat`}
         onChange={(value, on) => {
-          const id = categoryIdSchema.safeParse(value);
-          if (id.success) update({ categories: toggle(query.categories, id.data, on) });
+          if (isCategoryId(value)) update({ categories: toggle(query.categories, value, on) });
         }}
       />
       <FacetGroup

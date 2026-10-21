@@ -35,11 +35,15 @@ describe("wishlist", () => {
     expect(after.body.data).toHaveLength(1);
   });
 
-  it("keeps each user's list separate", async () => {
+  it("keeps each user's list separate, including deletes", async () => {
     const alice = await signedInAgent(app, "user");
     const bob = await signedInAgent(app, "user");
-    await alice.post(`/api/wishlist/${await productId("jbl-flip-5")}`).expect(201);
+    const jbl = await productId("jbl-flip-5");
+    await alice.post(`/api/wishlist/${jbl}`).expect(201);
     expect((await bob.get("/api/wishlist").expect(200)).body.data).toEqual([]);
+    // Bob removing the same product id must not touch Alice's entry.
+    await bob.delete(`/api/wishlist/${jbl}`).expect(200);
+    expect((await alice.get("/api/wishlist").expect(200)).body.data).toHaveLength(1);
   });
 
   it("validates the product id and checks the product exists", async () => {

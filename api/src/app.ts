@@ -11,13 +11,20 @@ import { originCheck, requireJson } from "./middleware/csrf.ts";
 import { errorHandler, notFoundHandler } from "./middleware/error-handler.ts";
 import { apiRouter } from "./routes/index.ts";
 
+/** "1" → 1 hop, "true"/"false" → boolean, anything else (e.g. "loopback", a CIDR list) as-is. */
+function parseTrustProxy(value: string): boolean | number | string {
+  if (/^\d+$/.test(value)) return Number(value);
+  if (value === "true" || value === "false") return value === "true";
+  return value;
+}
+
 /** Builds the Express app without listening, so tests can drive it with supertest. */
 export function createApp(env: Env, logger: Logger) {
   const app = express();
   const production = env.NODE_ENV === "production";
 
   app.disable("x-powered-by");
-  app.set("trust proxy", /^\d+$/.test(env.TRUST_PROXY) ? Number(env.TRUST_PROXY) : env.TRUST_PROXY);
+  app.set("trust proxy", parseTrustProxy(env.TRUST_PROXY));
   app.set("query parser", "simple");
 
   // Access logs: method, URL, status and timing only — no headers, cookies or bodies.
@@ -46,7 +53,11 @@ export function createApp(env: Env, logger: Logger) {
       production,
       scryptLogN: env.SCRYPT_LOG_N,
       sessionTtlDays: env.SESSION_TTL_DAYS,
-      rateLimit: { max: env.AUTH_RATE_LIMIT_MAX, windowMs: env.AUTH_RATE_LIMIT_WINDOW_MS },
+      rateLimit: {
+        max: env.AUTH_RATE_LIMIT_MAX,
+        accountMax: env.AUTH_ACCOUNT_RATE_LIMIT_MAX,
+        windowMs: env.AUTH_RATE_LIMIT_WINDOW_MS,
+      },
     }),
   );
 

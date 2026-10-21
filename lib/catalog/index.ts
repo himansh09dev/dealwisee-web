@@ -48,16 +48,28 @@ export async function getProduct(slug: string): Promise<ProductWithInsight | nul
   }
 }
 
-/** Same category first, then the rest of the catalog closest in price. */
+/**
+ * Same category first, then other products closest in price. The second
+ * query asks only for a small price window (60–150% of this price) instead
+ * of the catalog, so a product page fetches ~9 candidates, not 48.
+ */
 export async function getRelatedProducts(product: Product, limit: number) {
+  const dollars = product.currentPrice / 100;
   const [sameCategory, nearby] = await Promise.all([
     listProducts({ ...defaultQuery, categories: [product.category], pageSize: limit + 1 }),
-    listProducts({ ...defaultQuery, sort: "price-asc", pageSize: 48 }),
+    listProducts({
+      ...defaultQuery,
+      sort: "price-asc",
+      minPrice: Math.floor(dollars * 0.6),
+      maxPrice: Math.ceil(dollars * 1.5),
+      pageSize: limit * 2 + 1,
+    }),
   ]);
   const picked = sameCategory.items.filter((i) => i.product.slug !== product.slug);
+  const distance = (p: Product) => Math.abs(p.currentPrice - product.currentPrice);
   const rest = nearby.items
     .filter((i) => i.product.slug !== product.slug && i.product.category !== product.category)
-    .sort((a, b) => Math.abs(a.product.currentPrice - product.currentPrice) - Math.abs(b.product.currentPrice - product.currentPrice));
+    .sort((a, b) => distance(a.product) - distance(b.product));
   return [...picked, ...rest].slice(0, limit);
 }
 

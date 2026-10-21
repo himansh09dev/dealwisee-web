@@ -23,7 +23,10 @@ const envSchema = z.object({
   SESSION_TTL_DAYS: z.coerce.number().int().min(1).max(90).default(7),
   /** Express "trust proxy" setting: how many proxy hops to trust for client IPs. */
   TRUST_PROXY: z.string().default("loopback"),
-  AUTH_RATE_LIMIT_MAX: z.coerce.number().int().min(1).default(10),
+  /** Login + register requests per client IP per window. */
+  AUTH_RATE_LIMIT_MAX: z.coerce.number().int().min(1).default(20),
+  /** Failed sign-ins per account (email) per window, regardless of IP. */
+  AUTH_ACCOUNT_RATE_LIMIT_MAX: z.coerce.number().int().min(1).default(10),
   AUTH_RATE_LIMIT_WINDOW_MS: z.coerce.number().int().min(1000).default(15 * 60 * 1000),
   /** scrypt cost (log2 N). 17 follows OWASP guidance; tests lower it for speed. */
   SCRYPT_LOG_N: z.coerce.number().int().min(10).max(20).default(17),

@@ -1,11 +1,27 @@
 import { defineConfig } from "vitest/config";
 
-// Unit tests for pure logic (node environment). Component/E2E tests come later.
+// Two projects: pure logic in Node, components in jsdom with React Testing Library.
 export default defineConfig({
   resolve: { tsconfigPaths: true },
   test: {
-    environment: "node",
-    include: ["**/*.test.ts"],
-    exclude: ["node_modules", ".next", "api", "packages"],
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: "unit",
+          environment: "node",
+          include: ["tests/*.test.ts"],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: "components",
+          environment: "jsdom",
+          include: ["tests/components/**/*.test.tsx"],
+          setupFiles: ["tests/components/setup.tsx"],
+        },
+      },
+    ],
   },
 });

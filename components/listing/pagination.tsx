@@ -1,7 +1,6 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
-import { productsHref, type ProductQuery } from "@/lib/catalog/query";
 import { cn } from "@/lib/utils";
 
 /** 1 … 4 5 6 … 12 — always first, last, and the current page's neighbours. */
@@ -23,9 +22,17 @@ const item =
  * footer, and there are no observers or duplicate-request races to manage.
  * Real links, so it works before hydration.
  */
-export function Pagination({ query, page, pageCount }: { query: ProductQuery; page: number; pageCount: number }) {
+export function Pagination({
+  page,
+  pageCount,
+  href,
+}: {
+  page: number;
+  pageCount: number;
+  /** URL for a page number, keeping the caller's other URL state. */
+  href: (page: number) => string;
+}) {
   if (pageCount <= 1) return null;
-  const href = (p: number) => productsHref({ ...query, page: p });
 
   return (
     <nav aria-label="Pagination" className="flex items-center justify-center gap-1">
